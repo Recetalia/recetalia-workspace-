@@ -25,15 +25,6 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   para producción. Pablo decidió 2026-09-25 "sólo fuentes oficiales" (sin traducción IA).
   ← bloqueado por: Pablo completa el formulario de licencia DeCS
 
-- **[bug · core · M]** Consilio: interacciones graves llegan "sin graduar"
-  Medido en el `.98` 2026-09-25: sildenafilo+nitroglicerina (contraindicada), fluoxetina+tramadol
-  (síndrome serotoninérgico) y amiodarona+digoxina salen `unknown` desde openFDA.
-  **Causa real (medido 2026-09-25)**: nunca se cargaron las categorías ATC C/G/J/M/N/S de DDInter —
-  `ddinter_sources.py` decía que "no están disponibles" y es falso (HTTP 200, C=60k y N=91k líneas);
-  los tres pares están como Major. En curso: carga de las 14 categorías. Además el `.98` corre
-  sin el clasificador ML (imagen sin torch) y cae a regex. Opciones: curar a mano los pares
-  graves conocidos (`source='recetalia'`), o una lista de pares críticos de fuente oficial.
-
 - **[tarea · gestión · S]** Verdes + naranjas: terminar y desplegar
   **Decisión tomada por Pablo: van las dos.** Backend hecho — `Condvta.CONTROLLED` nuevo y la
   rama `condvtaId IN ('11','12')` en `DispensationRepository` (query y count). Falta confirmar
@@ -188,10 +179,6 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   2.5.0 (verificar que el mail de invitación sale). Habilitado y visible en la solapa
   Habilitados. Se dejó vivo a propósito para poder clickear el link del mail; borrarlo con
   `bash /tmp/d6.sh limpiar` en el `.217`. **Este tiene dueño y fecha: no es arrastre.**
-
-- **[decisión · repo · S]** `doc/` y `BACKLOG.md` de la raíz no están bajo git
-  El plan del release, el plan de pruebas, los specs cross-proyecto y este mismo archivo viven
-  sólo en la Mac de Pablo. La raíz del workspace no es un repo. Definir dónde van.
 
 - **[tarea · datos · S]** Faltan usuarios de prueba en PRE
   Un prestador con `MedicalProvider` asociado y un admin de cadena con franquicia. También
