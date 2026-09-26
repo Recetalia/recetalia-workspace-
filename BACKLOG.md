@@ -27,13 +27,6 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   `TWILIO_AUTH_TOKEN`**: el compose aborta con `:?` si falta alguna. También entra la 2.5.0 del QF
   (`feat/qf-perfil-y-habilitacion`), que no estaba en `2.x.y`.
 
-- **[tarea · plataforma · S]** 🚨 Rotar 4 secretos que estuvieron commiteados
-  Código limpio desde 2026-09-26 (`fix/sin-credenciales-en-yml`, ya en `2.x.y` de las 3 APIs y deploy):
-  ningún yml versionado trae credenciales. Pero siguen en el HISTORIAL de GitHub → asumirlas comprometidas:
-  1. clave DB PROD (`doadmin`, cluster managed DO) · 2. `jwt.secret` (rotar desloguea a todos; mismo valor
-  en api-rest y security-api) · 3. SMTP `notificaciones@recetalia.com` (mail.iwtg.com) · 4. Auth Token Twilio.
-  Rotar en cada proveedor y cargar en el `.env` de los servers. Reescribir historia NO alcanza ni hace falta.
-  → desbloquea: pushear `deploy-recetalia@feature/workspace-bootstrap` (o descartarla: está superada por 2.x.y)
 - **[decisión · datos · S]** El apex `medicinainteligente.ai` ya no apunta al `.98`
   Resuelve a `178.128.234.182` (otro droplet, sirve una landing Next.js), pero el `.98`
   sigue corriendo el contenedor `mi-landing` y su vhost `45-medicinainteligente.conf`
@@ -426,6 +419,10 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   se anota para no volver a diagnosticarlo.
 
 ## DESCARTADOS
+
+- **[tarea · plataforma]** ~~Rotar 4 secretos que estuvieron commiteados~~ — 2026-09-26
+  Pablo: "por ahora no hay problema" (repos privados). Eran clave DB PROD `doadmin`, `jwt.secret`, SMTP
+  notificaciones@ y Auth Token Twilio; siguen en el historial de GitHub. El código ya no los trae.
 
 - **[tarea · core]** ~~Activar `@EnableMethodSecurity` y corregir los 4 `@PreAuthorize`~~ — 2026-08-11
   Se borraron las 4 anotaciones y su regla pasó a los matchers de `SecurityConfiguration`, que
