@@ -143,6 +143,11 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   (241.235 filas); sin DDInter quedan 6.033 (2,5%). Actualizar `doc/2026-09-23-consilio-brochure.md`,
   `doc/2026-09-23-consilio-vs-vidal.md` y regenerar el PDF.
 
+- **[bug · core · S]** Un médico con `status=DELETED` sigue logueando y usando la API
+  Medido en PRE 2026-09-26: `medico@pruebas.com` tiene `medic.status=DELETED` y hace login, emite
+  token y opera. El login (security-api) no mira el status del médico de recetalia-api-rest.
+  Verificar si en PROD pasa igual; un médico dado de baja no debería poder recetar.
+
 ## DESPUÉS
 
 - **[deuda · plataforma · S]** `deploy.sh` no sirve para el `.98`: hace `docker compose pull` + `up -d` de todo
