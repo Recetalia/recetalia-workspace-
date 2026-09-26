@@ -148,6 +148,16 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   token y opera. El login (security-api) no mira el status del médico de recetalia-api-rest.
   Verificar si en PROD pasa igual; un médico dado de baja no debería poder recetar.
 
+- **[tarea · plataforma · S]** Mudanza de Consilio al 178.128.234.182: cerrar el corte
+  Hecho 2026-09-26: Consilio corre en `/opt/consilio` del 178 (edge-net, vhosts `/opt/edge/conf.d/30-consilio.conf`
+  y `31-consilio-app.conf`, rama `consilio@feat/deploy-servidor-mi`), certs y cuenta LE copiados del .98, API del
+  .98 apunta a `https://app.consilio.medicinainteligente.ai` (backup `.env.bak-consilio-mudanza-20260926`).
+  Falta: 1) Pablo cambia en CF `consilio` (naranja) y `*.consilio` (gris) → 178.128.234.182. 2) Verificar desde
+  afuera. 3) Parar Consilio en el .98 (dejar imagen + backup de 46/47). 4) **Cuenta LE duplicada en edge-nginx del
+  178** (copiada del .98, `3395859a…`): jonasal ya no emite certs nuevos solo ("Please choose an account").
+  Reemitir consilio, app.consilio, pons, app.pons con la cuenta original y sacar la 3395. 5) Mergear la rama a main
+  y actualizar `consilio/docs/deploy.md`.
+
 ## DESPUÉS
 
 - **[deuda · plataforma · S]** `deploy.sh` no sirve para el `.98`: hace `docker compose pull` + `up -d` de todo
