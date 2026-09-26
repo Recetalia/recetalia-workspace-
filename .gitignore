@@ -1,0 +1,11 @@
+# Sólo se versiona la raíz del workspace: doc/, backlog y guías.
+# Cada subproyecto tiene su propio repo.
+/*
+!/.gitignore
+!/doc/
+!/BACKLOG.md
+!/CLAUDE.md
+!/TODO.md
+!/README.md
+!/recetalia-workspace.code-workspace
+.DS_Store

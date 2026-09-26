@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Consilio — Seguridad en la prescripción · Brochure</title>
+<!--
+  Fuente única del brochure de Consilio.
+  Las cifras NO se escriben a mano: todo elemento con data-k="ruta.en.el.json" lo reescribe
+  build-brochure.sh con el valor de https://consilio.medicinainteligente.ai/data/summary
+  (data-f = int | pct | date). Las barras usan data-bar / data-of. Ver README.md.
+  Excepciones, que no están en el JSON y son mediciones citadas:
+    - "14 categorías ATC" de DDInter: consilio/docs/2026-09-25-castellano-y-colores.md
+    - "12/12 casos clínicos": consilio/scripts/eval_duplicidad.py, en
+      consilio/docs/2026-09-24-duplicidad-terapeutica-design.md § Despliegue
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#14213a; --azul:#1f6fd0; --azul-profundo:#14549f; --rosa:#b0697f; --rosa-claro:#e3b9c4;
+    --bg:#f7f9fd; --bg-seccion:#edf3fb; --text:#44546f; --text-strong:#14213a; --text-faint:#8a97ad;
+    --border:#14213a1a;
+    --major:#c0392b; --major-bg:#fbe7e4; --moderate:#d98b06; --moderate-bg:#fdf2d9;
+    --minor:#0e7490; --minor-bg:#e6f1f4; --unknown:#7c3aed; --unknown-bg:#f1eafe;
+  }
+  @page { size: A4; margin: 0; }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:Manrope, Helvetica, Arial, sans-serif; color:var(--text); font-size:10.2pt; line-height:1.5;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact; counter-reset:pagina; background:#fff;
+  }
+  h1,h2,h3,.marca,.num{ font-family:"Space Grotesk", Manrope, sans-serif; }
+  a{ color:var(--azul); text-decoration:none; }
+  strong{ color:var(--text-strong); font-weight:700; }
+
+  /* ---------- página ---------- */
+  .page{
+    width:210mm; height:297mm; position:relative; overflow:hidden;
+    padding:17mm 18mm 26mm; background:#fff;
+    page-break-after:always; break-after:page; counter-increment:pagina;
+  }
+  .page:last-child{ page-break-after:auto; break-after:auto; }
+
+  /* pie en todas las páginas */
+  .pie{
+    position:absolute; left:18mm; right:18mm; bottom:9mm; height:9mm;
+    display:flex; align-items:center; justify-content:space-between;
+    border-top:1px solid var(--border); padding-top:2.5mm;
+    font-size:8pt; color:var(--text-faint);
+  }
+  .pie a{ color:var(--azul-profundo); font-weight:600; }
+  .pie .nro::after{ content:"Página " counter(pagina); font-family:"Space Grotesk",sans-serif; font-weight:700; color:var(--navy); }
+  .pie .iwtg{ display:flex; align-items:center; gap:2mm; justify-content:flex-end; }
+  .pie .iwtg b{ color:var(--rosa); }
+
+  /* ---------- cabecera de página interior ---------- */
+  .cab{ display:flex; align-items:center; gap:5mm; margin-bottom:7mm; }
+  .cab .mi-logo{ margin-left:auto; }
+  .cab svg{ height:9mm; width:auto; }
+  /* Logo de Medicina Inteligente (wordmark del sitio madre): "Medicina" extrabold en azul
+     profundo + "Inteligente" medium en rosa, Space Grotesk. Arriba a la derecha en todas las páginas. */
+  .mi-logo{ font-family:"Space Grotesk",sans-serif; font-size:12.5pt; letter-spacing:-.01em; white-space:nowrap; line-height:1; }
+  .mi-logo b{ font-weight:800; color:#14549f; }
+  .mi-logo i{ font-style:normal; font-weight:500; color:#b0697f; }
+  .mi-logo--claro b{ color:#ffffff; }
+  .mi-logo--claro i{ color:#e3b9c4; }
+  .mi-portada{ position:absolute; top:18mm; right:20mm; z-index:3; font-size:13pt; }
+  .cab .seccion{ font-size:8pt; letter-spacing:.14em; text-transform:uppercase; color:var(--text-faint); font-weight:700; }
+
+  .eyebrow{ font-size:8pt; letter-spacing:.16em; text-transform:uppercase; font-weight:800; color:var(--rosa); margin:0 0 2mm; }
+  h2{ font-size:22pt; line-height:1.12; color:var(--navy); margin:0 0 4mm; letter-spacing:-.4px; font-weight:700; }
+  h3{ font-size:12.5pt; color:var(--azul-profundo); margin:0 0 1.5mm; font-weight:700; }
+  p{ margin:0 0 3mm; }
+  .lead{ font-size:11.5pt; color:var(--text-strong); line-height:1.55; margin-bottom:6mm; }
+
+  /* ---------- portada ---------- */
+  .portada{ background:var(--navy); color:#dfe6f3; padding:0; }
+  .portada .deco{ position:absolute; right:-52mm; top:-30mm; width:190mm; opacity:.10; }
+  .portada .cuerpo{ position:absolute; left:20mm; right:20mm; top:24mm; }
+  .portada .logo-b{ display:flex; align-items:center; gap:4mm; }
+  .portada .logo-b svg{ width:17mm; height:17mm; }
+  .portada .logo-b span{ font-family:"Space Grotesk",sans-serif; font-size:21pt; font-weight:700; color:#fff; }
+  .portada .tag{ margin-top:50mm; font-size:8.5pt; letter-spacing:.2em; text-transform:uppercase; font-weight:800; color:var(--rosa-claro); }
+  .portada h1{ font-size:44pt; line-height:1.02; color:#fff; margin:4mm 0 7mm; letter-spacing:-1.2px; font-weight:700; max-width:160mm; }
+  .portada .bajada{ font-size:13pt; line-height:1.55; color:#c9d4e8; max-width:150mm; margin:0; }
+  .portada .kpis{ position:absolute; left:20mm; right:20mm; top:178mm; display:grid; grid-template-columns:repeat(4,1fr); gap:0; border-top:1px solid #ffffff26; }
+  .portada .kpi{ padding:5mm 4mm 0 0; }
+  .portada .kpi .num{ font-size:22pt; font-weight:700; color:#fff; line-height:1.1; display:block; }
+  .portada .kpi small{ font-size:8.5pt; color:#a9b7d0; line-height:1.35; display:block; margin-top:1mm; }
+  .portada .cta{ position:absolute; left:20mm; right:20mm; top:214mm; background:#ffffff0f; border:1px solid #ffffff26; border-radius:8px; padding:6mm 7mm; display:flex; align-items:center; justify-content:space-between; gap:6mm; }
+  .portada .cta .t{ font-size:9pt; color:#a9b7d0; }
+  .portada .cta .t strong{ color:#fff; display:block; font-size:12pt; font-family:"Space Grotesk",sans-serif; margin-bottom:1mm; }
+  .portada .cta a.btn{ background:var(--azul); color:#fff; font-weight:700; padding:3.5mm 6mm; border-radius:6px; font-size:10pt; white-space:nowrap; }
+  .portada .version{ position:absolute; left:20mm; top:246mm; font-size:8.5pt; color:#8494b3; }
+  .portada .pie{ border-top-color:#ffffff26; color:#8494b3; left:20mm; right:20mm; }
+  .portada .pie a{ color:#fff; }
+  .portada .pie .nro::after{ color:#fff; }
+  .portada .pie .iwtg b{ color:var(--rosa-claro); }
+
+  /* ---------- bloques ---------- */
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:6mm; }
+  .grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:5mm; }
+  .card{ background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:5mm 5.5mm; }
+  .card.azul{ background:var(--bg-seccion); }
+  .card p:last-child{ margin-bottom:0; }
+  .paso{ display:flex; gap:5mm; margin-bottom:4mm; }
+  .paso .n{ flex:0 0 9mm; height:9mm; border-radius:50%; background:var(--bg-seccion); color:var(--azul-profundo); font-family:"Space Grotesk",sans-serif; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:11pt; }
+  .paso p{ margin-bottom:1.5mm; }
+
+  .alerta{ border-left:4px solid var(--major); background:var(--major-bg); border-radius:0 6px 6px 0; padding:3mm 4.5mm; margin:2.5mm 0 1mm; font-size:9.3pt; }
+  .alerta.mod{ border-color:var(--moderate); background:var(--moderate-bg); }
+  .alerta.sup{ border-color:var(--text-faint); background:var(--bg); }
+  .alerta .t{ font-weight:800; color:var(--text-strong); }
+  .sev{ display:inline-block; font-size:7.3pt; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:.6mm 2mm; border-radius:3px; margin-left:1.5mm; vertical-align:1px; }
+  .sev.major{ background:var(--major); color:#fff; }
+  .sev.moderate{ background:var(--moderate); color:#fff; }
+  .sev.minor{ background:var(--minor); color:#fff; }
+  .sev.unknown{ background:var(--unknown); color:#fff; }
+  .sev.sup{ background:var(--text-faint); color:#fff; }
+  .alerta .src{ font-size:7.8pt; color:var(--text); margin-top:1mm; }
+
+  ul.lista{ margin:0 0 3mm; padding:0; list-style:none; }
+  ul.lista li{ position:relative; padding-left:5mm; margin-bottom:1.4mm; }
+  ul.lista li::before{ content:""; position:absolute; left:0; top:2.1mm; width:2mm; height:2mm; border-radius:50%; background:var(--azul); }
+  ul.lista.rosa li::before{ background:var(--rosa); }
+
+  .stat{ display:flex; align-items:baseline; gap:3mm; }
+  .stat .num{ font-size:26pt; font-weight:700; color:var(--navy); line-height:1; letter-spacing:-.6px; }
+  .stat small{ font-size:8.8pt; line-height:1.35; }
+
+  .capa{ border-top:3px solid var(--azul-profundo); }
+  .capa .k{ font-family:"Space Grotesk",sans-serif; font-size:8pt; letter-spacing:.14em; text-transform:uppercase; color:var(--rosa); font-weight:700; margin-bottom:1.5mm; }
+  .ej{ font-size:8.8pt; margin-top:3mm; padding-top:3mm; border-top:1px dashed var(--border); }
+
+  table.t{ width:100%; border-collapse:collapse; font-size:9pt; }
+  table.t th{ text-align:left; font-size:7.6pt; letter-spacing:.1em; text-transform:uppercase; color:var(--text-faint); font-weight:800; padding:0 3mm 2mm 0; border-bottom:1.5px solid var(--navy); }
+  table.t td{ padding:1.5mm 3mm 1.5mm 0; border-bottom:1px solid var(--border); vertical-align:top; }
+  table.t td.r, table.t th.r{ text-align:right; padding-right:0; }
+  table.t td.num{ font-family:"Space Grotesk",sans-serif; font-weight:700; color:var(--navy); white-space:nowrap; }
+
+  .barra{ display:flex; height:7mm; border-radius:4px; overflow:hidden; margin:3mm 0 2.5mm; }
+  .barra i{ display:block; height:100%; }
+  .barra .major{ background:var(--major);} .barra .moderate{ background:var(--moderate);} .barra .minor{ background:var(--minor);} .barra .unknown{ background:var(--unknown);}
+  .leyenda{ display:flex; flex-wrap:wrap; gap:2mm 6mm; font-size:8.6pt; }
+  .leyenda span::before{ content:""; display:inline-block; width:2.6mm; height:2.6mm; border-radius:2px; margin-right:1.5mm; vertical-align:-.2mm; }
+  .leyenda .major::before{ background:var(--major);} .leyenda .moderate::before{ background:var(--moderate);} .leyenda .minor::before{ background:var(--minor);} .leyenda .unknown::before{ background:var(--unknown);}
+
+  .dif{ display:grid; grid-template-columns:11mm 1fr; gap:0 4mm; padding:4mm 0; border-bottom:1px solid var(--border); }
+  .dif:first-of-type{ padding-top:0; }
+  .dif .n{ font-family:"Space Grotesk",sans-serif; font-size:20pt; font-weight:700; color:var(--rosa); line-height:1; }
+  .dif p{ margin:0; }
+
+  .frase{ background:var(--navy); color:#dfe6f3; border-radius:8px; padding:6mm 7mm; font-size:11.5pt; line-height:1.5; }
+  .frase strong{ color:#fff; }
+  .nota{ font-size:8.3pt; color:var(--text-faint); line-height:1.45; }
+  .chip{ display:inline-block; background:#fff; border:1px solid var(--border); border-radius:20px; padding:.5mm 2.8mm; font-size:8.6pt; font-weight:600; color:var(--text-strong); margin:0 1mm 1mm 0; }
+  .pendiente{ display:inline-block; font-size:7.3pt; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:.6mm 2mm; border-radius:3px; background:var(--rosa); color:#fff; vertical-align:1px; }
+  .ok{ display:inline-block; font-size:7.3pt; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:.6mm 2mm; border-radius:3px; background:var(--azul); color:#fff; vertical-align:1px; }
+  .mt{ margin-top:6mm; } .mt2{ margin-top:4mm; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ 1 · PORTADA -->
+<section class="page portada">
+  <span class="mi-logo mi-logo--claro mi-portada" aria-label="Medicina Inteligente"><b>Medicina</b><i>Inteligente</i></span>
+  <svg class="deco" viewBox="0 0 48 48" aria-hidden="true">
+    <g fill="none" stroke="#ffffff" stroke-width="1.2"><circle cx="18.5" cy="24" r="12"/><circle cx="29.5" cy="24" r="12"/></g>
+  </svg>
+  <div class="cuerpo">
+    <div class="logo-b">
+      <svg viewBox="0 0 48 48" role="img" aria-label="Consilio">
+        <defs><clipPath id="lente-p"><circle cx="18.5" cy="24" r="12"/></clipPath></defs>
+        <circle cx="29.5" cy="24" r="12" fill="#e3b9c4" clip-path="url(#lente-p)"/>
+        <g fill="none" stroke="#ffffff" stroke-width="2.8"><circle cx="18.5" cy="24" r="12"/><circle cx="29.5" cy="24" r="12"/></g>
+      </svg>
+      <span>Consilio</span>
+    </div>
+    <div class="tag">Seguridad en la prescripción</div>
+    <h1>La segunda opinión que siempre está.</h1>
+    <p class="bajada">Consilio cruza los medicamentos que se indican —y el perfil del paciente— contra fuentes públicas en el momento: interacciones, duplicidades
+      y alertas contra el paciente, con la gravedad más alta que encuentra y diciendo de dónde salió cada aviso.</p>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><span class="num" data-k="interactions.distinct_pairs">237.160</span><small>pares de fármacos con interacción registrada</small></div>
+    <div class="kpi"><span class="num" data-k="condition_alerts.total">6.522</span><small>alertas fármaco-patología</small></div>
+    <div class="kpi"><span class="num" data-k="drugs.total">1.971</span><small>fármacos, <span data-k="drugs.spanish_name_pct" data-f="pct">67,6</span>&nbsp;% con nombre en castellano</small></div>
+    <div class="kpi"><span class="num" data-k="duplicity.classes">76</span><small>clases de duplicidad terapéutica</small></div>
+  </div>
+
+  <div class="cta">
+    <div class="t"><strong>Pruébelo sin instalar nada</strong>Demo pública con ejemplos listos y las cifras de cada fuente a la vista.</div>
+    <a class="btn" href="https://consilio.medicinainteligente.ai">consilio.medicinainteligente.ai →</a>
+  </div>
+  <div class="version">Brochure · cifras al <span data-k="_fetched" data-f="date">26/09/2026</span>, tomadas del propio sistema en producción</div>
+
+  <footer class="pie">
+    <span class="nro"></span>
+    <a href="https://consilio.medicinainteligente.ai">consilio.medicinainteligente.ai</a>
+    <span class="iwtg">Powered by&nbsp;<a href="https://iwtg.com">iwtg.com</a></span>
+  </footer>
+</section>
+
+<!-- ============================================================ 2 · QUÉ HACE -->
+<section class="page">
+  <div class="cab">
+    <svg viewBox="0 0 230 48" role="img" aria-label="Consilio">
+      <defs><clipPath id="lente-2"><circle cx="18.5" cy="24" r="12"/></clipPath></defs>
+      <circle cx="29.5" cy="24" r="12" fill="#b0697f" clip-path="url(#lente-2)"/>
+      <g fill="none" stroke="#14549f" stroke-width="2.6"><circle cx="18.5" cy="24" r="12"/><circle cx="29.5" cy="24" r="12"/></g>
+      <text x="54" y="30" font-family="'Space Grotesk', Manrope, sans-serif" font-size="23" font-weight="700" letter-spacing="-0.3" fill="#14213a">Consilio</text>
+    </svg>
+    <span class="seccion">Qué hace</span>
+    <span class="mi-logo" aria-label="Medicina Inteligente"><b>Medicina</b><i>Inteligente</i></span>
+  </div>
+
+  <p class="eyebrow">En el momento justo</p>
+  <h2>Avisa cuando el médico todavía puede cambiar de idea.</h2>
+  <p class="lead">Cuando se agrega un medicamento, Consilio dice <strong>en ese instante</strong> si hay algo
+    que conviene saber. No al guardar, no en un reporte al día siguiente. <strong>Y no bloquea:</strong> avisa, muestra
+    la evidencia y el médico decide.</p>
+
+  <div class="paso">
+    <div class="n">1</div>
+    <div>
+      <h3>Cruza los medicamentos entre sí</h3>
+      <p>Revisa todas las combinaciones entre los medicamentos indicados. Cada hallazgo trae su gravedad, la fuente que lo respalda y,
+        cuando la fuente lo tiene, el mecanismo y qué hacer.</p>
+      <div class="alerta"><span class="t">Warfarina + Ibuprofeno</span><span class="sev major">Grave</span><br>
+        Aumento del riesgo de hemorragias, especialmente gastrointestinales. <strong>Qué hacer:</strong> valorar
+        beneficio/riesgo, añadir gastroprotector y controlar signos de hemorragia.
+        <div class="src">Fuente: AEMPS, con mecanismo y manejo en castellano</div></div>
+      <div class="alerta"><span class="t">Sildenafilo + Nitroglicerina</span><span class="sev major">Grave</span>
+        &nbsp;·&nbsp; <span class="t">Tramadol + Fluoxetina</span><span class="sev major">Grave</span>
+        &nbsp;·&nbsp; <span class="t">Amiodarona + Digoxina</span><span class="sev major">Grave</span>
+        <div class="src">Pares clásicos que hoy salen graves gracias a la cobertura DDInter completa (ver página 4)</div></div>
+    </div>
+  </div>
+
+  <div class="paso">
+    <div class="n">2</div>
+    <div>
+      <h3>Los cruza contra el paciente que tiene delante</h3>
+      <p>Con lo que se sabe del paciente, Consilio indica si alguno de esos medicamentos no le conviene
+        <strong>a esa persona</strong>:</p>
+      <div>
+        <span class="chip">Embarazo, por semana de gestación</span><span class="chip">Lactancia</span>
+        <span class="chip">Función renal</span><span class="chip">Función hepática</span>
+        <span class="chip">Alergias</span><span class="chip">Patologías por CIE-10</span><span class="chip">Edad avanzada</span>
+      </div>
+      <p class="mt2" style="margin-bottom:0"><span data-k="condition_alerts.contraindications">5.112</span> contraindicaciones y
+        <span data-k="condition_alerts.precautions">1.410</span> precauciones, más
+        <span data-k="geriatric_criteria">166</span> criterios de prescripción en el adulto mayor, que se muestran como
+        <em>“verificar si…”</em> cuando dependen de un dato del paciente que no se cargó.</p>
+    </div>
+  </div>
+
+  <div class="paso">
+    <div class="n">3</div>
+    <div>
+      <h3>Entiende el diagnóstico como está escrito</h3>
+      <p>Se carga el código CIE-10 de la historia clínica, con su subcódigo. Consilio entiende la jerarquía:
+        un paciente con <strong>N18.5</strong> (enfermedad renal crónica, estadio 5) se evalúa como
+        <strong>N18</strong> y recibe las advertencias de la insuficiencia renal, aunque la base las tenga
+        ancladas al código padre. Hay <span data-k="conditions.icd10">552</span> códigos CIE-10 consultables.</p>
+    </div>
+  </div>
+
+  <div class="paso" style="margin-bottom:0">
+    <div class="n">4</div>
+    <div>
+      <h3>Dice lo que no pudo evaluar</h3>
+      <p style="margin-bottom:0">Un medicamento sin información aparece como <strong>no evaluable</strong>, nunca como seguro.
+        Y si una consulta falla, el resultado se marca como incompleto. Un vacío tranquiliza, y tranquilizar sin haber
+        evaluado nada es la peor forma de fallar que tiene una herramienta clínica.</p>
+    </div>
+  </div>
+
+  <footer class="pie">
+    <span class="nro"></span>
+    <a href="https://consilio.medicinainteligente.ai">consilio.medicinainteligente.ai</a>
+    <span class="iwtg">Powered by&nbsp;<a href="https://iwtg.com">iwtg.com</a></span>
+  </footer>
+</section>
+
+<!-- ============================================================ 3 · DUPLICIDAD -->
+<section class="page">
+  <div class="cab">
+    <svg viewBox="0 0 230 48" role="img" aria-label="Consilio">
+      <defs><clipPath id="lente-3"><circle cx="18.5" cy="24" r="12"/></clipPath></defs>
+      <circle cx="29.5" cy="24" r="12" fill="#b0697f" clip-path="url(#lente-3)"/>
+      <g fill="none" stroke="#14549f" stroke-width="2.6"><circle cx="18.5" cy="24" r="12"/><circle cx="29.5" cy="24" r="12"/></g>
+      <text x="54" y="30" font-family="'Space Grotesk', Manrope, sans-serif" font-size="23" font-weight="700" letter-spacing="-0.3" fill="#14213a">Consilio</text>
+    </svg>
+    <span class="seccion">Nuevo · Duplicidad terapéutica</span>
+    <span class="mi-logo" aria-label="Medicina Inteligente"><b>Medicina</b><i>Inteligente</i></span>
+  </div>
+
+  <p class="eyebrow">Nuevo en esta versión</p>
+  <h2>Detecta el mismo tratamiento recetado dos veces.</h2>
+  <p class="lead">Paracetamol solo y un antigripal que también lo trae. Dos benzodiacepinas de marcas distintas.
+    Consilio busca la duplicidad en <strong>tres capas</strong>, y cada una declara por qué alertó, o por qué no.</p>
+
+  <div class="grid3">
+    <div class="card capa">
+      <div class="k">Capa 1</div>
+      <h3>Misma sustancia</h3>
+      <p>El mismo principio activo en dos productos distintos, aunque uno sea un combinado.</p>
+      <div class="ej">Paracetamol + paracetamol/codeína<br><span class="sev major">Alerta</span></div>
+    </div>
+    <div class="card capa">
+      <div class="k">Capa 2</div>
+      <h3>Misma clase</h3>
+      <p>Clases terapéuticas de la AEMPS con cupo. La clase es el ATC de 4.º nivel de cada fármaco, y los
+        combinados se descartan a propósito.</p>
+      <div class="ej">Diazepam + lorazepam · clase N05BA<br><span class="sev moderate">Alerta</span></div>
+    </div>
+    <div class="card capa">
+      <div class="k">Capa 3</div>
+      <h3>Excepciones curadas</h3>
+      <p>Las asociaciones que son tratamiento correcto se muestran como <strong>no alertadas</strong>, con su motivo
+        a la vista.</p>
+      <div class="ej">Hidrocortisona + fludrocortisona<br><span class="sev sup">No alertada</span> Addison</div>
+    </div>
+  </div>
+
+  <div class="grid2 mt2">
+    <div>
+      <h3>Por qué no alerta todo lo que “se parece”</h3>
+      <p>Una regla ingenua por grupo ATC haría saltar la triple terapia antihipertensiva estándar. Consilio descarta
+        los códigos de combinado, y por eso <strong>no alerta IECA + antagonista del calcio + tiazida, ni ARA II +
+        tiazida</strong>, que son asociaciones de guía y no duplicidades.</p>
+      <div class="alerta sup"><span class="t">Enalapril + Amlodipino + Hidroclorotiazida</span><br>
+        Sin duplicidad: tres clases distintas, asociación de guía.</div>
+    </div>
+    <div>
+      <div class="card azul">
+        <div class="stat"><span class="num">12/12</span><small>casos clínicos de referencia resueltos correctamente</small></div>
+        <p class="nota mt2" style="margin-bottom:4mm">Medido con la batería de evaluación de duplicidad al desplegar
+          (<code>eval_duplicidad.py</code>), incluidos los casos que <em>no</em> deben alertar.</p>
+        <table class="t">
+          <tr><td>Clases terapéuticas vigiladas</td><td class="num r" data-k="duplicity.classes">76</td></tr>
+          <tr><td>Fármacos asignados a una clase</td><td class="num r" data-k="duplicity.class_memberships">662</td></tr>
+          <tr><td>Excepciones curadas</td><td class="num r" data-k="duplicity.curated_exceptions">1</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="frase mt2">Una alerta suprimida <strong>no desaparece</strong>: se muestra como “no alertada”, con el
+    motivo y la referencia. Así el médico ve qué se evaluó, y el equipo clínico puede auditar cada excepción.</div>
+
+  <footer class="pie">
+    <span class="nro"></span>
+    <a href="https://consilio.medicinainteligente.ai">consilio.medicinainteligente.ai</a>
+    <span class="iwtg">Powered by&nbsp;<a href="https://iwtg.com">iwtg.com</a></span>
+  </footer>
+</section>
+
+<!-- ============================================================ 4 · DIFERENCIALES + CASTELLANO -->
+<section class="page">
+  <div class="cab">
+    <svg viewBox="0 0 230 48" role="img" aria-label="Consilio">
+      <defs><clipPath id="lente-4"><circle cx="18.5" cy="24" r="12"/></clipPath></defs>
+      <circle cx="29.5" cy="24" r="12" fill="#b0697f" clip-path="url(#lente-4)"/>
+      <g fill="none" stroke="#14549f" stroke-width="2.6"><circle cx="18.5" cy="24" r="12"/><circle cx="29.5" cy="24" r="12"/></g>
+      <text x="54" y="30" font-family="'Space Grotesk', Manrope, sans-serif" font-size="23" font-weight="700" letter-spacing="-0.3" fill="#14213a">Consilio</text>
+    </svg>
+    <span class="seccion">Lo que nos diferencia</span>
+    <span class="mi-logo" aria-label="Medicina Inteligente"><b>Medicina</b><i>Inteligente</i></span>
+  </div>
+
+  <p class="eyebrow">Verificable en la demo</p>
+  <h2>Cuatro diferencias que se pueden comprobar en cinco minutos.</h2>
+
+  <div class="dif"><div class="n">1</div><div>
+    <h3>Cada hallazgo dice de dónde salió</h3>
+    <p>Cada alerta declara su fuente, y si la gravedad vino estructurada o se dedujo del texto de un prospecto. El
+      médico puede pesar el aviso en vez de tratarlos a todos igual.</p></div></div>
+  <div class="dif"><div class="n">2</div><div>
+    <h3>Las supresiones se ven, con su motivo</h3>
+    <p>Lo que no se alertó por una excepción clínica aparece como “no alertada” y explica por qué. Nada se descarta
+      en silencio.</p></div></div>
+  <div class="dif"><div class="n">3</div><div>
+    <h3>Lo no evaluable se declara</h3>
+    <p>Un medicamento sin datos se marca como no evaluable, nunca como seguro. Una consulta que falla se marca como
+      incompleta.</p></div></div>
+  <div class="dif"><div class="n">4</div><div>
+    <h3>La gravedad más alta, y quién la dijo</h3>
+    <p>Cuando las fuentes no coinciden en la gravedad de un par, Consilio se queda con la más alta y lo declara.
+      Esconder un desacuerdo entre fuentes no es resolverlo.</p></div></div>
+
+  <div class="grid2 mt">
+    <div class="card">
+      <p class="eyebrow">Nuevo · Cobertura completa</p>
+      <h3>DDInter, las 14 categorías ATC</h3>
+      <p>Se incorporaron las categorías que faltaban, entre ellas <strong>cardiovascular, sistema nervioso y
+        antiinfecciosos</strong>. Hoy DDInter aporta <strong data-k="interactions.by_source.ddinter">234.981</strong>
+        interacciones, y pares clásicos como sildenafilo + nitroglicerina, tramadol + fluoxetina y amiodarona +
+        digoxina salen como <span class="sev major">Grave</span></p>
+    </div>
+    <div class="card">
+      <p class="eyebrow">Nuevo · Castellano de fuente oficial</p>
+      <h3>Habla como escribe el médico</h3>
+      <p><strong><span data-k="drugs.with_spanish_name">1.333</span> de <span data-k="drugs.total">1.971</span>
+        fármacos (<span data-k="drugs.spanish_name_pct" data-f="pct">67,6</span>&nbsp;%)</strong> tienen nombre en
+        castellano, tomado de los diccionarios oficiales de la AEMPS y del vademécum uruguayo, sin traducción automática.
+        Se busca en los dos idiomas: <em>amlodipino</em> encuentra lo mismo que <em>amlodipine</em>.</p>
+      <p class="nota">Los textos que sólo existen en inglés (prospectos de openFDA) se muestran en su idioma original,
+        con un aviso.</p>
+    </div>
+  </div>
+
+  <footer class="pie">
+    <span class="nro"></span>
+    <a href="https://consilio.medicinainteligente.ai">consilio.medicinainteligente.ai</a>
+    <span class="iwtg">Powered by&nbsp;<a href="https://iwtg.com">iwtg.com</a></span>
+  </footer>
+</section>
+
+<!-- ============================================================ 5 · QUÉ HAY ADENTRO / TRANSPARENCIA -->
+<section class="page">
+  <div class="cab">
+    <svg viewBox="0 0 230 48" role="img" aria-label="Consilio">
+      <defs><clipPath id="lente-5"><circle cx="18.5" cy="24" r="12"/></clipPath></defs>
+      <circle cx="29.5" cy="24" r="12" fill="#b0697f" clip-path="url(#lente-5)"/>
+      <g fill="none" stroke="#14549f" stroke-width="2.6"><circle cx="18.5" cy="24" r="12"/><circle cx="29.5" cy="24" r="12"/></g>
+      <text x="54" y="30" font-family="'Space Grotesk', Manrope, sans-serif" font-size="23" font-weight="700" letter-spacing="-0.3" fill="#14213a">Consilio</text>
+    </svg>
+    <span class="seccion">Transparencia</span>
+    <span class="mi-logo" aria-label="Medicina Inteligente"><b>Medicina</b><i>Inteligente</i></span>
+  </div>
+
+  <p class="eyebrow">Qué hay adentro</p>
+  <h2>Publicamos cuánto cubrimos, y cuándo se actualizó.</h2>
+  <p class="lead">Estas cifras no son de un folleto: salen del propio sistema, y la sección <strong>Transparencia</strong>
+    del sitio de demo las muestra en vivo, fuente por fuente.</p>
+
+  <div class="grid2">
+    <div>
+      <div class="stat"><span class="num" data-k="interactions.distinct_pairs">237.160</span><small>pares de fármacos con interacción registrada<br><strong data-k="interactions.total">241.235</strong> registros de 3 fuentes</small></div>
+      <div class="barra">
+        <i class="major" data-bar="interactions.by_severity.major" data-of="interactions.total" style="width:16.70%"></i><i class="moderate" data-bar="interactions.by_severity.moderate" data-of="interactions.total" style="width:60.69%"></i><i class="minor" data-bar="interactions.by_severity.minor" data-of="interactions.total" style="width:4.04%"></i><i class="unknown" data-bar="interactions.by_severity.unknown" data-of="interactions.total" style="width:18.57%"></i>
+      </div>
+      <div class="leyenda">
+        <span class="major">Grave <strong data-k="interactions.by_severity.major">40.292</strong></span>
+        <span class="moderate">Moderada <strong data-k="interactions.by_severity.moderate">146.404</strong></span>
+        <span class="minor">Leve <strong data-k="interactions.by_severity.minor">9.736</strong></span>
+        <span class="unknown">Revisar <strong data-k="interactions.by_severity.unknown">44.803</strong></span>
+      </div>
+      <p class="nota mt2">“Revisar”: la fuente documenta la interacción pero no le asigna gravedad. Se muestra igual, en
+        violeta, para que no pase desapercibida.</p>
+    </div>
+    <div>
+      <table class="t">
+        <tr><th>Por fuente</th><th class="r">Interacciones</th></tr>
+        <tr><td>DDInter, base clínica estructurada</td><td class="num r" data-k="interactions.by_source.ddinter">234.981</td></tr>
+        <tr><td>Prospectos oficiales de EE.&nbsp;UU. (openFDA)</td><td class="num r" data-k="interactions.by_source.openfda">4.433</td></tr>
+        <tr><td>AEMPS, con mecanismo y manejo en castellano</td><td class="num r" data-k="interactions.by_source.aemps">1.821</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid3 mt">
+    <div class="card"><div class="stat"><span class="num" data-k="condition_alerts.total">6.522</span></div>
+      <small>alertas fármaco-patología<br><span data-k="condition_alerts.contraindications">5.112</span> contraindicaciones · <span data-k="condition_alerts.precautions">1.410</span> precauciones · <span data-k="conditions.icd10">552</span> códigos CIE-10</small></div>
+    <div class="card"><div class="stat"><span class="num" data-k="geriatric_criteria">166</span></div>
+      <small>criterios de prescripción en el anciano<br>desde los 65 años, de la AEMPS</small></div>
+    <div class="card"><div class="stat"><span class="num" data-k="dnma.mapped">733</span></div>
+      <small>de <span data-k="dnma.substances">1.390</span> sustancias del DNMA (Uruguay) vinculadas</small></div>
+  </div>
+
+  <h3 class="mt">Fuentes y última actualización</h3>
+  <table class="t">
+    <tr><th>Fuente</th><th>Qué aporta</th><th class="r">Actualizada</th></tr>
+    <tr><td><strong>DDInter</strong></td><td>Interacciones fármaco-fármaco con gravedad estructurada, de una base curada.</td><td class="r" data-k="sources.ddinter.updated_at" data-f="date">25/09/2026</td></tr>
+    <tr><td><strong>AEMPS</strong> (España)</td><td>Interacciones con mecanismo y manejo escritos, clases de duplicidad terapéutica, criterios en el anciano y nombres en castellano.</td><td class="r" data-k="sources.aemps.updated_at" data-f="date">25/09/2026</td></tr>
+    <tr><td><strong>openFDA</strong> (EE.&nbsp;UU.)</td><td>Interacciones inferidas del texto del prospecto oficial de EE.UU., sólo donde no hay una fuente mejor.</td><td class="r" data-k="sources.openfda.updated_at" data-f="date">17/09/2026</td></tr>
+    <tr><td><strong>MED-RT</strong> (NLM)</td><td>Contraindicaciones y precauciones de cada fármaco frente a patologías.</td><td class="r" data-k="sources.medrt.updated_at" data-f="date">16/09/2026</td></tr>
+    <tr><td><strong>RxNorm</strong> (NLM)</td><td>El identificador (RxCUI) que une a las fuentes entre sí.</td><td class="r" data-k="sources.rxnorm.updated_at" data-f="date">25/09/2026</td></tr>
+    <tr><td><strong>DNMA</strong> (MSP, Uruguay)</td><td>Las sustancias del registro uruguayo y su grafía local.</td><td class="r" data-k="sources.dnma.updated_at" data-f="date">16/09/2026</td></tr>
+    <tr><td><strong>Puente CIE-10</strong></td><td>Traduce los códigos CIE-10 que usa el médico a las patologías de MED-RT.</td><td class="r" data-k="sources.icd10_bridge.updated_at" data-f="date">23/09/2026</td></tr>
+  </table>
+
+  <footer class="pie">
+    <span class="nro"></span>
+    <a href="https://consilio.medicinainteligente.ai">consilio.medicinainteligente.ai</a>
+    <span class="iwtg">Powered by&nbsp;<a href="https://iwtg.com">iwtg.com</a></span>
+  </footer>
+</section>
+
+<!-- ============================================================ 6 · INTEGRACIÓN, PRIVACIDAD, LÍMITES -->
+<section class="page">
+  <div class="cab">
+    <svg viewBox="0 0 230 48" role="img" aria-label="Consilio">
+      <defs><clipPath id="lente-6"><circle cx="18.5" cy="24" r="12"/></clipPath></defs>
+      <circle cx="29.5" cy="24" r="12" fill="#b0697f" clip-path="url(#lente-6)"/>
+      <g fill="none" stroke="#14549f" stroke-width="2.6"><circle cx="18.5" cy="24" r="12"/><circle cx="29.5" cy="24" r="12"/></g>
+      <text x="54" y="30" font-family="'Space Grotesk', Manrope, sans-serif" font-size="23" font-weight="700" letter-spacing="-0.3" fill="#14213a">Consilio</text>
+    </svg>
+    <span class="seccion">Integración y alcance</span>
+    <span class="mi-logo" aria-label="Medicina Inteligente"><b>Medicina</b><i>Inteligente</i></span>
+  </div>
+
+  <p class="eyebrow">Cómo se integra</p>
+  <h2>Un servicio, no una pantalla más.</h2>
+  <p class="lead">Una sola integración y lo consumen el recetario electrónico, la historia clínica o cualquier otro
+    producto. Y para quien quiera usarlo directo, trae su propia interfaz de consulta, bilingüe castellano/inglés.</p>
+
+  <div class="grid2">
+    <div class="card azul">
+      <h3>Integración con Recetalia <span class="ok">Preproducción</span></h3>
+      <p>La API de Recetalia envía los productos del vademécum uruguayo (DNMA) agrupados por producto, y recibe las
+        interacciones y duplicidades de cada uno.</p>
+      <p class="nota">Funciona hoy en el ambiente de preproducción. La visualización en la pantalla del médico está
+        <strong>pendiente</strong>.</p>
+    </div>
+    <div class="card azul">
+      <h3>Privacidad por diseño</h3>
+      <ul class="lista" style="margin-bottom:0">
+        <li><strong>No guarda recetas</strong> ni datos de pacientes: evalúa y responde.</li>
+        <li>La base de conocimiento es <strong>de sólo lectura</strong>.</li>
+        <li>El motor es propio: no se alquila una base por usuario, y el criterio que carga el equipo clínico queda incorporado.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid2 mt">
+    <div>
+      <p class="eyebrow">Demo pública</p>
+      <h3>consilio.medicinainteligente.ai</h3>
+      <ul class="lista">
+        <li><strong>Probar un ejemplo:</strong> carga medicamentos con interacciones conocidas.</li>
+        <li><strong>Ejemplo con paciente:</strong> una paciente de 78 años con enfermedad renal crónica, una alergia
+          y cinco medicamentos.</li>
+        <li><strong>Transparencia:</strong> cifras y fecha de actualización de cada fuente.</li>
+        <li>Selector de idioma castellano / inglés.</li>
+      </ul>
+    </div>
+    <div>
+      <p class="eyebrow">Qué no evalúa todavía</p>
+      <h3>Lo decimos antes de que lo pregunten</h3>
+      <ul class="lista rosa">
+        <li><strong>Dosis</strong>: sobredosis, infradosis y duración.</li>
+        <li><strong>Incompatibilidad fisicoquímica</strong> entre preparados.</li>
+        <li><strong>Reactividad cruzada en alergias</strong>: hoy se detecta el fármaco exacto declarado.</li>
+        <li><strong>Pediatría</strong>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="frase mt"><strong>En una frase:</strong> Consilio cruza los medicamentos que se indican contra fuentes públicas en el momento,
+    avisa con la gravedad más alta que encuentra diciendo de dónde salió, muestra lo que decidió no alertar y por qué,
+    y no afirma nada que no pueda respaldar.</div>
+
+  <p class="nota mt"><strong>Advertencia.</strong> Consilio genera información automáticamente a partir de fuentes
+    públicas. No sustituye el criterio clínico. Que no se encuentre una interacción documentada no significa que no
+    exista. Ante cualquier duda, verificar con el prospecto oficial.</p>
+
+  <footer class="pie">
+    <span class="nro"></span>
+    <a href="https://consilio.medicinainteligente.ai">consilio.medicinainteligente.ai</a>
+    <span class="iwtg">Powered by&nbsp;<a href="https://iwtg.com">iwtg.com</a></span>
+  </footer>
+</section>
+
+</body>
+</html>
