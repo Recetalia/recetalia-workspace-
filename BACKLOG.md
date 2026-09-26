@@ -423,6 +423,12 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
 
 ## ALGÚN DÍA
 
+- **[tarea · plataforma · S]** Subdominios `*.consilio.medicinainteligente.ai`: habilitar uno cuando haga falta
+  DNS creado 2026-09-26 → `.98`. Wildcard en gris (DNS only): proxeado falla TLS en el edge (Universal SSL
+  cubre un solo nivel; medido curl exit 35). Sin cert wildcard (pedía token CF por DNS-01): por cada
+  subdominio nuevo, cert Let's Encrypt HTTP-01 como `consilio/deploy/46-consilio.conf` (copiar el bloque con
+  su `server_name`, emitir con `certbot certonly --webroot`, symlink en conf.d, `nginx -t` + reload).
+
 - **[bug · plataforma · S]** Los `*.demo.doctorconsultas.com` de tres niveles fallan TLS
   El cert universal de Cloudflare cubre `*.doctorconsultas.com`, un solo nivel. El origin los
   sirve bien (200/302 con `Host` header). Es de otro producto que comparte el nginx del `.98`;
