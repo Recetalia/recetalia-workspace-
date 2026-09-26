@@ -145,6 +145,11 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
 
 ## DESPUÉS
 
+- **[deuda · plataforma · S]** `deploy.sh` no sirve para el `.98`: hace `docker compose pull` + `up -d` de todo
+  En el `.98` las imágenes son `:dev` construidas en el server; el pull/up global puede pisarlas. El deploy
+  a PRE del 2026-09-26 se hizo a mano (rsync + build de a una + up de 7 servicios). Darle al script un modo
+  dev98 (build en server, up sólo de los servicios tocados) o documentar el procedimiento manual.
+
 - **[bug · core · S]** El filtro de médicos no anda en ninguna app: `GET /api/medics/search` no existe
   Médicos, Farmacias y Gestión lo llaman; cae en `/{id}` con id "search" → 404 silencioso.
 
