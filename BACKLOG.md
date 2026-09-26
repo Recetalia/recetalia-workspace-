@@ -7,29 +7,12 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
 
 ## AHORA
 
-- **[bug · plataforma · S]** Gestión, Farmacias y QF sirven la versión vieja después de cada deploy
-  Hallado 2026-09-26: registran el service worker de Angular pero ninguna usa `SwUpdate`, así que la
-  versión nueva no se activa hasta recargar dos veces o cerrar todas las pestañas (en médicos hizo ver
-  el botón de Consilio habilitado a un médico sin acceso). Arreglado en `medics-recetalia-app`
-  (`services/app-update.service.ts`, commit 4dc4216): copiar el mismo servicio a las otras tres.
-
-- **[bug · core · M]** `/api/medics/**` lo acepta cualquier usuario logueado
-  Hallado 2026-09-26 al agregar `PUT /api/medics/{id}/consilio` (el único restringido a
-  `ROLE_ROLE_MANAGEMENT`): el resto de la gestión de médicos (alta, edición, listado) no exige
-  rol de Gestión en `SecurityConfiguration`. Un médico o una farmacia logueados podrían editar médicos.
-
 - **[bloqueado · core · S]** Consilio: patologías en castellano — pedir licencia de DeCS
   Las 1.517 patologías MeSH se muestran en inglés salvo 144 traducidas a mano. La fuente oficial
   es DeCS (BIREME/OPS/OMS): gratis, pero descarga/API exige licencia por formulario
   (https://decs.bvsalud.org/en/for-developers/). La copia en UMLS (MSHSPA) es nivel 3: no sirve
   para producción. Pablo decidió 2026-09-25 "sólo fuentes oficiales" (sin traducción IA).
   ← bloqueado por: Pablo completa el formulario de licencia DeCS
-
-- **[tarea · gestión · S]** Verdes + naranjas: terminar y desplegar
-  **Decisión tomada por Pablo: van las dos.** Backend hecho — `Condvta.CONTROLLED` nuevo y la
-  rama `condvtaId IN ('11','12')` en `DispensationRepository` (query y count). Falta confirmar
-  que el front del Libro Negro y la vista del QF pidan `CONTROLLED` en vez de `GREEN`/`"11"`,
-  **cambiar el título "recetas verdes dispensadas" del QF** (ya no es exacto) y desplegar a PRE.
 
 - **[tarea · repo · S]** `recetalia-security-testing` no tiene remoto: 23 commits sólo en la Mac
   Es el único repo del workspace sin `origin`. Todo el trabajo de la suite de pentest y stress
@@ -39,25 +22,18 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   Ramas integradas en `2.x.y` el 2026-09-26 (api-rest, gestión, médicos, farmacias, qf, deploy;
   consilio `main` ← `feat/duplicidad`). `2.x.y` ahora exige `medic.consilio_enabled`: correr
   `recetalia-api-rest/doc/migrations/2026-09-26-medic-consilio-enabled.sql` en PROD ANTES de levantar
-  la API nueva. Vars de Consilio vacías en PROD (chequeo omitido). También entra la 2.5.0 del QF
+  la API nueva. Vars de Consilio vacías en PROD (chequeo omitido). **El `.env` de cada server
+  (también el `.98`, con `dev-invalid`) debe traer `JWT_SECRET`, `EMAIL_PASSWORD`, `TWILIO_ACCOUNT_SID`,
+  `TWILIO_AUTH_TOKEN`**: el compose aborta con `:?` si falta alguna. También entra la 2.5.0 del QF
   (`feat/qf-perfil-y-habilitacion`), que no estaba en `2.x.y`.
 
-- **[bug · plataforma · S]** 🚨 La clave de la DB de producción está commiteada en 3 repos
-  GitHub bloqueó un push el 2026-09-24 por secret scanning ("Aiven Service Password") y al
-  rastrearla apareció que **ya está en ramas pusheadas**: `recetalia-api-rest`
-  (`bin/main/application.yml` en `2.x.y`, `HEAD` y `feat/consilio-interacciones`),
-  `security-api-recetalia` y `transversal-recetalia-api` (`application.yml` en varias ramas).
-  Es la del usuario `doadmin` del cluster managed de DigitalOcean — el de PRODUCCIÓN.
-  **Los repos son privados** (la API de GitHub da 404 sin auth), así que no está en internet
-  abierta, pero la tiene cualquiera con acceso a los repos, incluido quien lo haya tenido antes.
-  ⚠️ **Borrarla de la historia NO alcanza**: una vez que estuvo en GitHub hay que asumirla
-  comprometida. **La acción es ROTARLA** en DigitalOcean y actualizar los `.env` de los dos
-  servers; recién después limpiar los `application.yml` (que además no deberían traer
-  credenciales: desde 2026-08-02 las inyecta el compose).
-  El propio `doc/specs/databases.md:44` de `deploy-recetalia` ya lo decía —"un secreto
-  productivo nunca debería viajar así"— y quedó como observación sin dueño.
-  → desbloquea: pushear `deploy-recetalia@feature/workspace-bootstrap`, hoy rechazada
-
+- **[tarea · plataforma · S]** 🚨 Rotar 4 secretos que estuvieron commiteados
+  Código limpio desde 2026-09-26 (`fix/sin-credenciales-en-yml`, ya en `2.x.y` de las 3 APIs y deploy):
+  ningún yml versionado trae credenciales. Pero siguen en el HISTORIAL de GitHub → asumirlas comprometidas:
+  1. clave DB PROD (`doadmin`, cluster managed DO) · 2. `jwt.secret` (rotar desloguea a todos; mismo valor
+  en api-rest y security-api) · 3. SMTP `notificaciones@recetalia.com` (mail.iwtg.com) · 4. Auth Token Twilio.
+  Rotar en cada proveedor y cargar en el `.env` de los servers. Reescribir historia NO alcanza ni hace falta.
+  → desbloquea: pushear `deploy-recetalia@feature/workspace-bootstrap` (o descartarla: está superada por 2.x.y)
 - **[decisión · datos · S]** El apex `medicinainteligente.ai` ya no apunta al `.98`
   Resuelve a `178.128.234.182` (otro droplet, sirve una landing Next.js), pero el `.98`
   sigue corriendo el contenedor `mi-landing` y su vhost `45-medicinainteligente.conf`
@@ -119,16 +95,11 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   que mande mail: el D6 de la 2.5.0 hubo que cerrarlo en PRODUCCIÓN.
   → desbloquea: probar el flujo de habilitación entero en PRE en vez de en PROD
 
-- **[deuda · plataforma · M]** Un ingress caído no avisa: el nginx del `.98` estuvo días muerto
-  Encontrado el 2026-09-02: `recetalia-nginx` en crash loop (vivía 1,8 s, `RestartCount=134`),
-  nada escuchando en 80/443 → **ninguna URL `*pre` respondía**, tampoco `pre.ape.org.uy` ni los
-  `pre` de DoctorConsultas/DoctorSuite. Nadie se enteró hasta que fui a desplegar.
-  Se resolvió con `docker compose up -d --force-recreate --no-deps nginx`, pero **la causa no se
-  pudo aislar**: el recreate se llevó la capa de escritura del contenedor viejo antes de poder
-  diffearla. Descartados con medición: config (`nginx -t` pasa), certs, puertos, disco.
-  Falta un chequeo periódico de ingress en el Monitor de Infraestructura del Dashboard de
-  Control — sin eso, la próxima vez tampoco se entera nadie.
-
+- **[deuda · plataforma · S]** Un ingress caído se VE pero no AVISA
+  Desde 2026-09-26 el Monitor de Infra de Gestión chequea 4 fronts + security-api de PRE y PROD
+  (`GET /api/control-dashboard/infra/ingress`, 520-530 de Cloudflare = caído). Pero sólo si alguien
+  abre el dashboard. Falta job en `ControlDashboardScheduler` que mande mail al detectar caída
+  (el 2026-09-02 el nginx del `.98` estuvo días muerto sin que nadie se enterara).
 - **[decisión · gestión · M]** Cómo le llega el acceso a cada QF del arrastre
   **Resuelto el CÓMO en la 2.5.0**: Gestión ya no asigna ninguna clave — habilitar manda al QF
   un mail con el link para que defina la suya. Lo que sigue abierto es el arrastre de abajo.
@@ -154,23 +125,6 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   sin migrar, o hay médicos legítimamente sueltos? De la respuesta depende si el dato se corrige
   o si la app tiene que tratar "médico sin prestador" como un caso normal para siempre.
 
-- **[deuda · core · S]** Nadie testea al médico sin prestador en pacientes ni en el Excel de controlados
-  El fix del guard (`MedicalProviderScopeGuard`) cambió el comportamiento para `ROLE_MEDIC` sin
-  prestador, y `PatientsByMedicAndProviderScopeTest` y `ControlledMedicationsExcelScopeTest` pasan
-  por el mismo guard pero **ninguno arma ese caso**: sus médicos siempre tienen `mp-1`. El hueco es
-  simétrico al bug que se acaba de arreglar, así que un cambio futuro en esa rama del guard no
-  dispara ningún rojo en esos dos caminos.
-
-- **[deuda · core · M]** 25 pantallas más se comen los errores de la API
-  Medido 2026-08-20 sobre los componentes de `pages/` que loguean con `console.error`: **4 de 9 en
-  médicos, 8 de 16 en farmacias y 13 de 21 en gestión** no tienen ningún canal visible al usuario
-  (`errorMessage`, `showDialog`, `snackBar`, `MessageService` ni `alert-danger`). O sea que un
-  fallo de la API se ve como un resultado vacío. No es teórico: así fue como el 404 de los médicos
-  sin prestador pasó **ocho días en producción** sin que nadie lo reportara como error — el
-  listado de recetas era uno de estos 25 y ya se arregló (`2f9d031`). Faltan los otros 24.
-  Comando para reproducir el conteo:
-  `grep -rl "console.error" <app>/src/app/pages --include='*.ts' | xargs grep -L -E 'errorMessage|showDialog|snackBar|MessageService|alert-danger'`
-
 - **[deuda · datos · S]** Hay 4 QF y 3 farmacias de prueba en la base de PRODUCCIÓN
   CJP `446788` ("Test Test"), `453652` ("NombDirTest ApeDirTest") y `9876543` ("test test"), cada
   uno asignado a una farmacia ficticia (`Farmacia `, `Test`, `test`). Ensucian todo conteo sobre
@@ -185,7 +139,28 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   `api-c3@recetalia.com`, que **existe en PROD pero no en PRE**. Sin ellos esas rutas se validan
   sólo con tests unitarios.
 
+- **[bug · core · M]** Un prestador puede editar o borrar cualquier médico
+  Hallado 2026-09-26 (`fix/medics-endpoints-rol`): `GET/PUT/DELETE /api/medics/{id}` aceptan
+  ROLE_MEDICAL_PROVIDER sin ownership, y ve a todos en `GET /api/medics`. No se acotó porque el alta
+  del prestador no manda `medicalProviderId` → sus médicos quedan sin prestador. Arreglo: asignar el
+  prestador del token al crear + filtrar listado y edición por prestador.
+
+- **[tarea · docs · S]** Brochure y comparativo VIDAL dicen 166.489 interacciones
+  Medido 2026-09-26 (`count(distinct drug_a_id, drug_b_id)` en `recetalia_interactions.db`): 237.160 pares
+  (241.235 filas); sin DDInter quedan 6.033 (2,5%). Actualizar `doc/2026-09-23-consilio-brochure.md`,
+  `doc/2026-09-23-consilio-vs-vidal.md` y regenerar el PDF.
+
 ## DESPUÉS
+
+- **[bug · core · S]** El filtro de médicos no anda en ninguna app: `GET /api/medics/search` no existe
+  Médicos, Farmacias y Gestión lo llaman; cae en `/{id}` con id "search" → 404 silencioso.
+
+- **[deuda · gestión · S]** Gestión tiene ruteado `/register` copiado de la app de médicos
+  Componentes de médicos arrastrados a Gestión (perfil con ruta comentada, `/register` activo).
+
+- **[decisión · plataforma · S]** QF tiene el service worker apagado a propósito
+  `qf-recetalia-app/src/app/app.module.ts:33` `enabled: false` (2026-07-22, workaround del cacheo viejo).
+  Desde 2026-09-26 tiene `AppUpdateService` (inerte sin SW). Decidir si se reactiva el SW (PWA) o se deja.
 
 - **[tarea · core · S]** Consilio: routine semanal de calidad
   Pablo eligió (2026-09-24) una routine semanal: refrescar fuentes que cambian (openFDA, AEMPS),
@@ -409,13 +384,6 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
 - **[deuda · plataforma · M]** La conexión JDBC escribe UTF-8 en columnas `latin1`
   Cualquier nombre con acento se corrompe al guardarse. Afecta a toda la plataforma, no sólo al QF.
 
-- **[tarea · plataforma · S]** Rotar la password de la DB en DigitalOcean
-  Salió del `application.yml`, pero sigue en el historial de git.
-
-- **[tarea · plataforma · M]** Rotar el `jwt.secret`
-  Compartido entre api-rest y security-api: hay que cambiar los dos a la vez. **Desloguea a todos**,
-  así que necesita ventana.
-
 - **[deuda · core · S]** Borrar `/api/prescriptions/admin-data` y `/admin-data2`
   Scaffolding de debug: el primero devuelve un string fijo, el segundo los roles del que llama.
   No los usa ningún frontend. Quedaron a la vista al limpiar los `@PreAuthorize` muertos.
@@ -439,9 +407,6 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
 
 - **[deuda · core · S]** `registeredAt` no se exige en el backend
   La invariante del QF (`ACTIVE` ∧ `validatedAt` ∧ `registeredAt`) se apoya en un guard del front.
-
-- **[deuda · plataforma · S]** Twilio y SMTP siguen en el `application.yml` del transversal
-  Las bases ya salieron; estas credenciales no.
 
 - **[deuda · plataforma · S]** 5 `conflicting server name` en el nginx del `.98`
   `farmaciaspre`, `medicospre`, `prestadorespre`, `gestionpre` y `apipre` están declarados dos
