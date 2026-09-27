@@ -7,13 +7,15 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
 
 ## AHORA
 
-- **[bug · plataforma · M]** 🚨 Endpoints de auth sin autenticación: tomar cuentas y crear usuarios con cualquier rol
+- **[bug · plataforma · S]** 🚨 Endpoints de auth sin autenticación — CERRADO en código 2.6.1 (PRE y PROD 2026-09-27); queda la auditoría
   Medido 2026-09-27: `renew-password(Back)` cambiaba la clave de cualquiera con sólo el email (PRE → 201 sin
-  token); `register(Back)` creaba usuarios con el rol del request (p.ej. ROLE_MANAGEMENT) con una api key que
-  está en claro en el front QF. MITIGADO en nginx (.98 y .217, `deploy-recetalia` 50ef3cd): 403 desde internet
-  para register*, renew-password*, request-reset-back, users-exist-back. Efecto: QF no puede auto-registrarse ni
-  hacer el cambio de clave del primer login. EN CURSO: fix de código + 2.6.1 (header interno para *Back, JWT
-  propio para renew-password, roles permitidos en register, dnmaxml/upload con rol) + auditoría de explotación.
+  token); `register(Back)` creaba usuarios con el rol del request. 2.6.1: register*, renew-passwordBack,
+  request-reset-back, users-exist-back exigen `X-Internal-Api-Key` (env `INTERNAL_API_KEY`, distinta PRE/PROD);
+  renew-password acepta esa clave o el JWT propio; dnmaxml/upload sólo ROLE_MANAGEMENT; dnmaxml/read acotado.
+  El 403 de nginx queda como defensa en profundidad. (Corrección: el QF NUNCA dependió de estos endpoints desde
+  el browser — se registra y cambia la clave vía api-rest `/pharmaceutical-director/register`; el `renewPassword`
+  de qf `auth.service.ts` es código muerto desde 6c2e390.) PENDIENTE: auditoría de explotación (usuarios creados
+  o claves cambiadas por register*/renew-password* antes del 2026-09-27 — cruzar `users` con altas legítimas de api-rest).
 
 - **[bloqueado · core · S]** Consilio: patologías en castellano — pedir licencia de DeCS
   Las 1.517 patologías MeSH se muestran en inglés salvo 144 traducidas a mano. La fuente oficial

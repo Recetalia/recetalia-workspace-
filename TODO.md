@@ -10,13 +10,13 @@ Hallazgos detectados durante la revisión transversal del workspace (2026-04-28)
 
 ### transversal-recetalia-api (sin Spring Security)
 - [ ] Agregar `spring-boot-starter-security` + `SecurityWebFilterChain` mínimo. Hoy `/api/**` está sin filtro. Mitigación actual: nginx no lo expone, pero un slip de config lo deja abierto.
-- [ ] **`/api/dnmaxml/read?path=…`** acepta rutas de filesystem arbitrarias — restringir el endpoint a un directorio whitelisteado o eliminarlo si ya no se usa en runtime.
+- [x] **`/api/dnmaxml/read?path=…`** acepta rutas de filesystem arbitrarias — ✅ 2.6.1 (2026-09-27): sólo archivos regulares dentro de `/srv/dnma_info` (`dnma.xml.dir`), con symlinks y `..` resueltos. Lo usa api-rest tras el upload de Gestión.
 - [ ] **`/api/email/send`** es un relay SMTP abierto — proteger con auth + restringir orígenes (lo único que debe usarlo es `security-api-recetalia` para reset de password).
 - [ ] `CorsConfig.java` mapea `/apiContactCenter/**` (no existe) — limpiar y mapear el path real `/api/**` con whitelist concreta de subdominios `*pre.recetadigital.uy` / prod.
 
 ### security-api-recetalia (reset de password)
-- [ ] **`renew-password` no requiere auth ni token de reset** — cualquiera puede pedir reset por email para cualquier usuario. Implementar token de reset con expiry.
-- [ ] **Reset token = `UUID.randomUUID().substring(0,5)`** (5 chars, ~60M combinaciones) → bruteforceable. Cambiar a UUID completo (o token random ≥ 32 chars) + expiry corto + invalidación al usar.
+- [x] **`renew-password` no requiere auth ni token de reset** — ✅ 2.6.1 (2026-09-27): exige `X-Internal-Api-Key` (api-rest) o el JWT del propio usuario; register*/renew-passwordBack/request-reset-back/users-exist-back sólo con la clave interna. `/request-reset` rechaza urls fuera de `*.recetalia.com`.
+- [x] ✅ (ya corregido antes de 2.6.1: token aleatorio largo, ver `PasswordResetTokenServiceImpl`) **Reset token = `UUID.randomUUID().substring(0,5)`** (5 chars, ~60M combinaciones) → bruteforceable. Cambiar a UUID completo (o token random ≥ 32 chars) + expiry corto + invalidación al usar.
 - [ ] Hashear el reset token en DB en vez de guardarlo en texto.
 - [ ] `JwtTokenFilter` está declarado `@Component` pero `addFilterBefore(...)` está comentado en `JwtSecurityConfig` — decidir: o se usa (descomentar) o se borra el componente entero.
 
