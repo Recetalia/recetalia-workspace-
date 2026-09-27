@@ -18,15 +18,6 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   Es el único repo del workspace sin `origin`. Todo el trabajo de la suite de pentest y stress
   vive únicamente en el disco de Pablo. Crear el repo en la organización y pushear.
 
-- **[tarea · plataforma · S]** Antes del próximo deploy de 2.x.y a PROD: migración + vars de Consilio
-  Ramas integradas en `2.x.y` el 2026-09-26 (api-rest, gestión, médicos, farmacias, qf, deploy;
-  consilio `main` ← `feat/duplicidad`). `2.x.y` ahora exige `medic.consilio_enabled`: correr
-  `recetalia-api-rest/doc/migrations/2026-09-26-medic-consilio-enabled.sql` en PROD ANTES de levantar
-  la API nueva. Vars de Consilio vacías en PROD (chequeo omitido). **El `.env` de cada server
-  (también el `.98`, con `dev-invalid`) debe traer `JWT_SECRET`, `EMAIL_PASSWORD`, `TWILIO_ACCOUNT_SID`,
-  `TWILIO_AUTH_TOKEN`**: el compose aborta con `:?` si falta alguna. También entra la 2.5.0 del QF
-  (`feat/qf-perfil-y-habilitacion`), que no estaba en `2.x.y`.
-
 - **[decisión · datos · S]** El apex `medicinainteligente.ai` ya no apunta al `.98`
   Resuelve a `178.128.234.182` (otro droplet, sirve una landing Next.js), pero el `.98`
   sigue corriendo el contenedor `mi-landing` y su vhost `45-medicinainteligente.conf`
@@ -153,6 +144,11 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   del edge, contenedor del `.98` parado con imagen y vhosts en `nginx/bak/`). Actualizar el doc con el 178:
   `/opt/consilio`, `docker-compose.mi.yml`, vhosts `30-`/`31-` en `/opt/edge/conf.d`, cómo se sube la base.
 ## DESPUÉS
+
+- **[deuda · plataforma · S]** Las imágenes 2.6.0 no están en el registry
+  El deploy de 2.6.0 a PROD (2026-09-27) construyó en el `.217` sin `compose push` (el `.98`, que hostea el
+  registry, estaba justo de disco). Un `deploy.sh` normal hace `pull` y traería versiones viejas del registry.
+  Pushear las 7 imágenes 2.6.0 al registry con disco suficiente en el `.98`, o documentar el build en server.
 
 - **[deuda · plataforma · S]** `deploy.sh` no sirve para el `.98`: hace `docker compose pull` + `up -d` de todo
   En el `.98` las imágenes son `:dev` construidas en el server; el pull/up global puede pisarlas. El deploy
