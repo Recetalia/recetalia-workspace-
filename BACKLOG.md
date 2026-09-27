@@ -7,6 +7,14 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
 
 ## AHORA
 
+- **[bug · plataforma · M]** 🚨 Endpoints de auth sin autenticación: tomar cuentas y crear usuarios con cualquier rol
+  Medido 2026-09-27: `renew-password(Back)` cambiaba la clave de cualquiera con sólo el email (PRE → 201 sin
+  token); `register(Back)` creaba usuarios con el rol del request (p.ej. ROLE_MANAGEMENT) con una api key que
+  está en claro en el front QF. MITIGADO en nginx (.98 y .217, `deploy-recetalia` 50ef3cd): 403 desde internet
+  para register*, renew-password*, request-reset-back, users-exist-back. Efecto: QF no puede auto-registrarse ni
+  hacer el cambio de clave del primer login. EN CURSO: fix de código + 2.6.1 (header interno para *Back, JWT
+  propio para renew-password, roles permitidos en register, dnmaxml/upload con rol) + auditoría de explotación.
+
 - **[bloqueado · core · S]** Consilio: patologías en castellano — pedir licencia de DeCS
   Las 1.517 patologías MeSH se muestran en inglés salvo 144 traducidas a mano. La fuente oficial
   es DeCS (BIREME/OPS/OMS): gratis, pero descarga/API exige licencia por formulario
