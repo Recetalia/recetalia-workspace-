@@ -7,16 +7,6 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
 
 ## AHORA
 
-- **[bug · plataforma · S]** 🚨 Endpoints de auth sin autenticación — CERRADO en código 2.6.1 (PRE y PROD 2026-09-27); queda la auditoría
-  Medido 2026-09-27: `renew-password(Back)` cambiaba la clave de cualquiera con sólo el email (PRE → 201 sin
-  token); `register(Back)` creaba usuarios con el rol del request. 2.6.1: register*, renew-passwordBack,
-  request-reset-back, users-exist-back exigen `X-Internal-Api-Key` (env `INTERNAL_API_KEY`, distinta PRE/PROD);
-  renew-password acepta esa clave o el JWT propio; dnmaxml/upload sólo ROLE_MANAGEMENT; dnmaxml/read acotado.
-  El 403 de nginx queda como defensa en profundidad. (Corrección: el QF NUNCA dependió de estos endpoints desde
-  el browser — se registra y cambia la clave vía api-rest `/pharmaceutical-director/register`; el `renewPassword`
-  de qf `auth.service.ts` es código muerto desde 6c2e390.) PENDIENTE: auditoría de explotación (usuarios creados
-  o claves cambiadas por register*/renew-password* antes del 2026-09-27 — cruzar `users` con altas legítimas de api-rest).
-
 - **[bloqueado · core · S]** Consilio: patologías en castellano — pedir licencia de DeCS
   Las 1.517 patologías MeSH se muestran en inglés salvo 144 traducidas a mano. La fuente oficial
   es DeCS (BIREME/OPS/OMS): gratis, pero descarga/API exige licencia por formulario
@@ -153,6 +143,18 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   Consilio se mudó al 178.128.234.182 el 2026-09-26 (corte hecho: DNS, certs reemitidos con la cuenta LE
   del edge, contenedor del `.98` parado con imagen y vhosts en `nginx/bak/`). Actualizar el doc con el 178:
   `/opt/consilio`, `docker-compose.mi.yml`, vhosts `30-`/`31-` en `/opt/edge/conf.d`, cómo se sube la base.
+- **[deuda · plataforma · S]** `CREDENTIALS.local.md` copiado en `/opt/recetalia/<repo>/` del .217 y del .98
+  Desde junio (rsync de fuentes). No entra a las imágenes, pero está en disco de PROD. Borrarlo en ambos
+  servers y agregar la exclusión al rsync de `deploy.sh` y al procedimiento manual de build en server.
+
+- **[deuda · plataforma · M]** transversal sin Spring Security: `/api/email/send` es un relay abierto
+  Sólo alcanzable desde la red interna de docker (nginx no expone transversal, verificado 2026-09-27), pero
+  cualquier contenedor de la red puede mandar mails como notificaciones@. Agregar auth (clave interna).
+
+- **[decisión · gestión · S]** Dos cuentas de Gestión viejas: `gestion@gestion.com` y `gestrecetalia@gmail.com`
+  ROLE_MANAGEMENT en PROD, sin logins registrados desde 2026-07-18 (auditoría 2026-09-27). ¿Se usan? Si no,
+  borrarlas: ven todo Gestión.
+
 ## DESPUÉS
 
 - **[deuda · plataforma · S]** Las imágenes 2.6.0 no están en el registry
