@@ -8,8 +8,7 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
 ## AHORA
 
 - **[tarea · plataforma · S]** Cerrar la mudanza de Consilio PROD (ya corre en 165.22.231.175 desde 2026-10-02)
-  Falta: retirar `30-`/`31-consilio*.conf` y sus certs del edge del 178 (dueño sites-manager-ea; sin tráfico, la
-  renovación LE va a fallar); `ufw` en el 165 (hoy firewall inactivo, sólo escuchan 22/80/443); deploys de Consilio
+  Falta (30/31 y sus certs del 178 ya retirados por sites-manager-ea el 2026-10-02): `ufw` en el 165 (hoy firewall inactivo, sólo escuchan 22/80/443); deploys de Consilio
   ahora son 3: PROD 165 (save/load o build), landing en el 178, PRE en el .98 — documentarlo en `consilio/docs/deploy.md`.
 - **[bloqueado · core · S]** Consilio: patologías en castellano — pedir licencia de DeCS
   Las 1.517 patologías MeSH se muestran en inglés salvo 144 traducidas a mano. La fuente oficial
