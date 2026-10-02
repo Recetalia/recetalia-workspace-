@@ -7,6 +7,12 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
 
 ## AHORA
 
+- **[bloqueado · plataforma · S]** Completar la suite PRE de doctorhub en el borde del .98 (`73-suitepre-mi.conf`)
+  Hoy instalado PARCIAL (nexohcpre, gestionnexohcpre, suitepre). Faltan certs de authpre, emergenciapre, clinicaspre,
+  movilpre y gestionpre; después reemplazar el parcial por `doctorhub deploy/pre/73-suitepre-mi.conf` completo, avisar
+  authpre a doctorhub (corre cambiar-a-authpre.sh) y retirar 71-suite-pre y 48-consilio-pre (*.nexohc).
+  ← bloqueado por: Pablo crea en Cloudflare los A grises → .98 (y pasa gestionpre de naranja a gris)
+
 - **[tarea · plataforma · S]** Cerrar la mudanza de Consilio PROD (ya corre en 165.22.231.175 desde 2026-10-02)
   Falta (30/31 y sus certs del 178 ya retirados por sites-manager-ea el 2026-10-02): `ufw` en el 165 (hoy firewall inactivo, sólo escuchan 22/80/443); deploys de Consilio
   ahora son 3: PROD 165 (save/load o build), landing en el 178, PRE en el .98 — documentarlo en `consilio/docs/deploy.md`.
