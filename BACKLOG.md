@@ -7,6 +7,15 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
 
 ## AHORA
 
+- **[tarea · plataforma · M]** Mudar Consilio PROD al server de servicios 138.197.129.148
+  Decidido por Pablo 2026-10-01 (ahí quedan sólo Consilio y PONS prod). Plan aprobado en principio con doctorhub:
+  backend-hl7-fhir instala docker + borde jonasal; yo pongo vhost + contenedor (imagen con `docker save | docker load`
+  desde el 178, MISMA API key de prod), verificar con `--resolve`, corte = sólo DNS de consilio/app.consilio (recetalia
+  PROD llama por dominio, no se toca) con OK de Pablo vía doctorhub. Dependencias a avisar ANTES: sites-manager-ea
+  (retiro de 30/31 del edge del 178) y medicinainteligente-fb (medicinainteligente.ai/consilio/ sale de
+  consilio:8000/landing/ por edge-net del 178: dejar un consilio sólo-landing ahí o reapuntar a app.consilio/landing/).
+  Server hoy: 1 vCPU / 961 MB / sin docker, hostname "serverx" (igual que el 178).
+
 - **[bloqueado · core · S]** Consilio: patologías en castellano — pedir licencia de DeCS
   Las 1.517 patologías MeSH se muestran en inglés salvo 144 traducidas a mano. La fuente oficial
   es DeCS (BIREME/OPS/OMS): gratis, pero descarga/API exige licencia por formulario
