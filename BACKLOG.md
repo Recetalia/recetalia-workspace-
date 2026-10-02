@@ -157,6 +157,11 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
 
 ## DESPUÉS
 
+- **[bug · plataforma · S]** `registrypre.recetadigital.uy` y `qfpre.doctorconsultas.com` no resuelven en DNS
+  Medido 2026-10-01: `dig` vacío para los dos (el contenedor `recetalia-registry` del .98 sí corre). Sin el
+  registry, `deploy.sh` no puede hacer push/pull (por eso los deploys se hacen con build en server). Pablo:
+  recrear los A en Cloudflare o decidir retirar el registry y el alias qfpre de DoctorConsultas.
+
 - **[deuda · plataforma · S]** Las imágenes 2.6.0 no están en el registry
   El deploy de 2.6.0 a PROD (2026-09-27) construyó en el `.217` sin `compose push` (el `.98`, que hostea el
   registry, estaba justo de disco). Un `deploy.sh` normal hace `pull` y traería versiones viejas del registry.
@@ -424,6 +429,8 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   La invariante del QF (`ACTIVE` ∧ `validatedAt` ∧ `registeredAt`) se apoya en un guard del front.
 
 - **[deuda · plataforma · S]** 5 `conflicting server name` en el nginx del `.98`
+  Medido 2026-10-01: los 5 (apipre, medicospre, farmaciaspre, gestionpre, prestadorespre) están en `10-frontends`/
+  `20-apis` y en `15-dev` con los MISMOS upstreams; gana el primero y `nginx -t` pasa. Inocuo: sacar los bloques de 15-dev.
   `farmaciaspre`, `medicospre`, `prestadorespre`, `gestionpre` y `apipre` están declarados dos
   veces (`10-frontends.conf` y `15-dev.conf`), y nginx **ignora uno de los dos bloques** en cada
   caso. Preexistente y sin efecto visible hoy, pero significa que la mitad de esa config no se
