@@ -207,6 +207,11 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   mecanismo sobre RxClass (MoA/EPC) une benzodiacepinas con hipnóticos Z y AINEs dispersos. Sumar
   el caso a `tests/regression/casos_duplicidad.json` cuando se haga.
 
+- **[bug · core · S]** Consilio: paracetamol + codeína da «grave» inferida de un texto sobre IMAO
+  Medido en PRE 2026-10-09 (`POST /interactions` con `products` p1=[paracetamol], p2=[paracetamol, codeina]):
+  `severity: major`, `source: openfda`, `uncertain: true`, descripción "Do not use Butalbital, Acetaminophen,
+  Caffeine, and Codeine… in patients taking MAOIs". La inferencia de openFDA toma la frase de un tercer
+  fármaco. Revisar el filtro de oraciones del ETL de openFDA; se evitó en los videos demo.
 - **[bug · core · S]** Consilio: el autocompletado no encuentra nombres castellanos completos
   Visto en la UI 2026-09-25: "amlodipino" y "fludrocortisona" no dan resultados ("amlo" sí).
   `search_drugs` busca por prefijo de alias y no usa el respaldo DNMA/esqueleto que ya tiene
