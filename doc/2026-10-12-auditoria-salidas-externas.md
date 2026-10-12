@@ -24,7 +24,18 @@ Verificado en PROD:
 - `EXTERNAL_API_SECURITY_API_RECETALIA` y `EXTERNAL_API_TRANSVERSAL_API_RECETALIA` apuntan a la red interna de Docker.
 - `api.recetalia.com/.../email/send` devuelve 404 desde afuera.
 
-## ⚠ Envío oculto a un tercero — sitio institucional (activo en PROD)
+## ✅ Envío oculto a un tercero — sitio institucional (corregido el 2026-10-12)
+
+**Corregido y desplegado en PROD (.217) y en PRE (.98)** con `recetalia-site` `abcf1bd` y `deploy-recetalia` `0bf1a53`:
+- se quitó el BCC;
+- se borraron `contact.php` y `contact2.php` de lanzamiento (ahora dan 404);
+- las credenciales SMTP pasaron a `SITE_SMTP_*` del `.env`.
+
+`mail01.iwtg.com` **no resuelve en DNS**: el formulario ya no enviaba nada antes del arreglo, así que en los
+últimos tiempos el BCC tampoco llegaba (no sé desde cuándo). Se pasó a `mail.iwtg.com`: login verificado en los dos
+servidores, sin mandar ningún mail. Pendiente: rotar la clave (ver BACKLOG).
+
+Detalle original:
 
 Lo encontré en una segunda pasada, por pedido de la sesión de DoctorConsultas, que halló lo mismo allá.
 El sitio se importó tal cual del Plesk viejo (commit `c8269be`, 2026-07-10).
