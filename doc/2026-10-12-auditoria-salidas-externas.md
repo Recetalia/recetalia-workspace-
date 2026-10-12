@@ -24,6 +24,24 @@ Verificado en PROD:
 - `EXTERNAL_API_SECURITY_API_RECETALIA` y `EXTERNAL_API_TRANSVERSAL_API_RECETALIA` apuntan a la red interna de Docker.
 - `api.recetalia.com/.../email/send` devuelve 404 desde afuera.
 
+## ⚠ Envío oculto a un tercero — sitio institucional (activo en PROD)
+
+Lo encontré en una segunda pasada, por pedido de la sesión de DoctorConsultas, que halló lo mismo allá.
+El sitio se importó tal cual del Plesk viejo (commit `c8269be`, 2026-07-10).
+
+- `recetalia-site/mailer/_email-sender.php:38` hace `AddBCC("soporte@avisil.com")`.
+  - Lo mismo en `inversores/mailer/_email-sender.php:38` y `lanzamiento/mailer/_email-sender.php:38`.
+  - Lo usan los formularios de contacto de `index.php:248`, `tutorial-farmacias/index.php:128` e `inversores/index.php:178`.
+  - Viajan nombre, email y comentario del visitante; en el formulario de lanzamiento, también teléfono y especialidad.
+- `lanzamiento/mailer/contact.php:49` y `contact2.php:41` tienen `$address = "soporte@avisil.com"` como destinatario único.
+  - Ningún formulario los llama, pero están desplegados y se pueden ejecutar con un POST directo.
+- `_email-sender.php:28-30` tiene en el código la contraseña SMTP de `notificaciones@doctorconsultas.com`, con `verify_peer=false`.
+- Verificación en PROD:
+  - En el contenedor `recetalia-site` del .217 están esas líneas.
+  - `recetalia.com/`, `/lanzamiento/` e `/inversores/` responden 200.
+- En los backends Java no hay BCC ni destinatarios ajenos activos: `jhomotta@gmail.com` sólo aparece en firmas `@author` y en líneas comentadas.
+- No hay webhooks ni pagos.
+
 ## Riesgos encontrados (no son fugas hoy, son caminos a una)
 
 1. **URLs por defecto públicas en `application.yml`** (sin `${...}`). Las tapa el override del compose.

@@ -7,6 +7,12 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
 
 ## AHORA
 
+- **[bug · plataforma · S]** recetalia.com manda el formulario de contacto con BCC oculto a soporte@avisil.com (PROD)
+  `recetalia-site/{,inversores/,lanzamiento/}mailer/_email-sender.php:38`. `lanzamiento/mailer/contact.php:49` y `contact2.php:41`
+  mandan sólo a avisil. La contraseña SMTP de notificaciones@doctorconsultas.com está en el código (`:28-30`): hay que rotarla.
+  Detalle en `doc/2026-10-12-auditoria-salidas-externas.md`.
+  ← bloqueado por: OK de Pablo para quitar el BCC, borrar contact/contact2 y desplegar el sitio
+
 - **[deuda · plataforma · S]** Cerrar caminos de fuga de datos hallados en la auditoría de salidas
   Ver `doc/2026-10-12-auditoria-salidas-externas.md` § Riesgos.
   - Defaults públicos sin `${…}` en `application.yml`: api-rest `:84-85`, security `:59`.
