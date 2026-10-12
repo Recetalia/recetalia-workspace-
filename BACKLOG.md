@@ -25,12 +25,6 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   Twilio (EE.UU.) recibe nombre, teléfono y medicamentos del paciente. Consilio recibe el perfil clínico
   sin identificar. Falta un contrato de encargado / consentimiento según la Ley 18.331.
 
-- **[tarea · core · S]** Consilio: mergear `fix/alergia-nombre-es-y-demos` y llevar el fix a PROD
-  La alerta de alergia mostraba el fármaco en inglés («Amoxicillin»); arreglado en `app/web/app.js:1260`
-  y ya en PRE (2026-10-09). PROD (165.22.231.175) sigue con el texto viejo. La rama trae además los
-  guiones de los videos demo (`docs/demos/`).
-  ← bloqueado por: OK de Pablo para el merge y el deploy a PROD
-
 - **[bloqueado · plataforma · S]** Completar la suite PRE de doctorhub en el borde del .98 (`73-suitepre-mi.conf`)
   Hoy instalado PARCIAL (nexohcpre, gestionnexohcpre, suitepre). Faltan certs de authpre, emergenciapre, clinicaspre,
   movilpre y gestionpre; después reemplazar el parcial por `doctorhub deploy/pre/73-suitepre-mi.conf` completo, avisar
