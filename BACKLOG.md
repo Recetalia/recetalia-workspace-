@@ -7,6 +7,18 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
 
 ## AHORA
 
+- **[deuda · plataforma · S]** Cerrar caminos de fuga de datos hallados en la auditoría de salidas
+  Ver `doc/2026-10-12-auditoria-salidas-externas.md` § Riesgos.
+  - Defaults públicos sin `${…}` en `application.yml`: api-rest `:84-85`, security `:59`.
+  - `/email/send` sin autenticación.
+  - `mail.debug: true` (transversal `:62`).
+  - CI del paciente impresa por consola (`PatientServiceImpl:68`).
+  - `console.log(finalKey)` en 4 logins.
+  - bootstrap de jsDelivr sin SRI.
+- **[decisión · datos · S]** Base legal para enviar datos de salud a Twilio y a Consilio
+  Twilio (EE.UU.) recibe nombre, teléfono y medicamentos del paciente. Consilio recibe el perfil clínico
+  sin identificar. Falta un contrato de encargado / consentimiento según la Ley 18.331.
+
 - **[tarea · core · S]** Consilio: mergear `fix/alergia-nombre-es-y-demos` y llevar el fix a PROD
   La alerta de alergia mostraba el fármaco en inglés («Amoxicillin»); arreglado en `app/web/app.js:1260`
   y ya en PRE (2026-10-09). PROD (165.22.231.175) sigue con el texto viejo. La rama trae además los
