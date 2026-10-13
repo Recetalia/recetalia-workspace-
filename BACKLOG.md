@@ -7,6 +7,13 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
 
 ## AHORA
 
+- **[decisión · plataforma · S]** Captcha real en el formulario de recetalia.com (Turnstile de Cloudflare o reCAPTCHA)
+  El reCAPTCHA actual (sitekey `6LdnY14a…`, del desarrollador anterior) sólo se chequea en el navegador: falta la
+  clave secreta para validarlo en el servidor. Desde el 2026-10-13 frena el spam `recetalia-site/inc/antispam.php`
+  (sin terceros). Si vuelve a pasar spam: crear el widget de Turnstile en el panel de CF (paso de Pablo) y validarlo
+  en `antispam_motivo()`.
+  ← bloqueado por: que Pablo cree el widget de Turnstile (sólo si vuelve el spam)
+
 - **[tarea · plataforma · S]** Rotar la clave SMTP de notificaciones@doctorconsultas.com y cargarla en el sitio
   La clave quedó en el historial de git de `recetalia-site` (los mailers la tenían en el código hasta el 2026-10-12).
   La rotación la hace DoctorConsultas. Después hay que poner `SITE_SMTP_PASS` en el `.env` del .217 y del .98 y
