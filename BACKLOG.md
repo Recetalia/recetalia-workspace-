@@ -7,6 +7,12 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
 
 ## AHORA
 
+- **[bug · core · S]** 🚨 `/api/medical-providers/**` abierto a cualquier token: lectura de secretos de otros prestadores (PROD)
+  Medido el 2026-10-13 con el token API del prestador NexoHC: `GET /medical-providers` (listado) y `GET /medical-providers/{id}`
+  de OTRO prestador → 200, con `password` y `passwordForgotCode` con valor. POST, PUT y DELETE también caen en
+  `anyRequest().authenticated()` (`SecurityConfiguration.java:300`), sin matcher propio. Restringir a `ROLE_ROLE_MANAGEMENT`
+  (un prestador sólo puede ver su propio registro) y no devolver nunca `password`/`passwordForgotCode`/`*PasswordEnc`.
+
 - **[decisión · plataforma · S]** Captcha real en el formulario de recetalia.com (Turnstile de Cloudflare o reCAPTCHA)
   El reCAPTCHA actual (sitekey `6LdnY14a…`, del desarrollador anterior) sólo se chequea en el navegador: falta la
   clave secreta para validarlo en el servidor. Desde el 2026-10-13 frena el spam `recetalia-site/inc/antispam.php`
