@@ -13,6 +13,12 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   `anyRequest().authenticated()` (`SecurityConfiguration.java:300`), sin matcher propio. Restringir a `ROLE_ROLE_MANAGEMENT`
   (un prestador sólo puede ver su propio registro) y no devolver nunca `password`/`passwordForgotCode`/`*PasswordEnc`.
 
+- **[seguridad · deploy · M]** PHP2Shell (CVE-2026-109618/109619): recompilar recetalia-site sobre PHP parcheado
+  Desde el 2026-10-21 hay mitigación en .98 y .217 (`php2shell/zz-php2shell.conf` + `mem_limit: 512m`, deploy-recetalia
+  a66dd51): baja la superficie, pero PHP 7.4.33 sigue vulnerable. Arreglo de fondo: imagen sobre `php:7.4-apache`
+  con el backport, receta en `~/iwtg/sites-manager/php-parcheado` (MIGRACION.md, sección PHP2Shell). Al tenerla,
+  sacar el montaje del conf si el backport lo vuelve innecesario.
+
 - **[decisión · plataforma · S]** Captcha real en el formulario de recetalia.com (Turnstile de Cloudflare o reCAPTCHA)
   El reCAPTCHA actual (sitekey `6LdnY14a…`, del desarrollador anterior) sólo se chequea en el navegador: falta la
   clave secreta para validarlo en el servidor. Desde el 2026-10-13 frena el spam `recetalia-site/inc/antispam.php`
