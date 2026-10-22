@@ -13,11 +13,16 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   `anyRequest().authenticated()` (`SecurityConfiguration.java:300`), sin matcher propio. Restringir a `ROLE_ROLE_MANAGEMENT`
   (un prestador sólo puede ver su propio registro) y no devolver nunca `password`/`passwordForgotCode`/`*PasswordEnc`.
 
-- **[seguridad · deploy · M]** PHP2Shell (CVE-2026-109618/109619): recompilar recetalia-site sobre PHP parcheado
-  Desde el 2026-10-21 hay mitigación en .98 y .217 (`php2shell/zz-php2shell.conf` + `mem_limit: 512m`, deploy-recetalia
-  a66dd51): baja la superficie, pero PHP 7.4.33 sigue vulnerable. Arreglo de fondo: imagen sobre `php:7.4-apache`
-  con el backport, receta en `~/iwtg/sites-manager/php-parcheado` (MIGRACION.md, sección PHP2Shell). Al tenerla,
-  sacar el montaje del conf si el backport lo vuelve innecesario.
+- **[bug · deploy · S]** 🚨 Cert de `registrypre.recetadigital.uy` vencido desde el 2026-10-11: no se puede pushear ni pullear
+  Medido el 2026-10-21 (`docker push` → x509 expired). Bloquea `build-and-push.sh` y el `pull` de `deploy.sh` en los dos
+  servers: hoy ningún deploy normal funciona. El parche PHP2Shell se desplegó por `docker save | ssh docker load`.
+  Al renovarlo (en el .98, `certbot … --cert-name registrypre.recetadigital.uy`, ver memoria de gotchas: sacar SANs
+  muertos): pushear `php-base:7.4-apache{,-buster}-php2shell` y `recetalia-site:{latest,dev}` desde la Mac.
+  ← bloqueado por: OK de Pablo para renovar los certs de recetadigital.uy (dijo «todavía no»)
+
+- **[mejora · deploy · S]** Achicar las bases PHP parcheadas (php-parcheado/)
+  Dejan instaladas las dependencias de compilación: recetalia-site pasó a ~1,1 GB (latest) y 940 MB (dev). Hacer
+  `apt-get purge` de lo agregado al final del RUN, cuidando que `docker-php-ext-install mysqli` siga funcionando.
 
 - **[decisión · plataforma · S]** Captcha real en el formulario de recetalia.com (Turnstile de Cloudflare o reCAPTCHA)
   El reCAPTCHA actual (sitekey `6LdnY14a…`, del desarrollador anterior) sólo se chequea en el navegador: falta la
