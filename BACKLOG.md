@@ -23,24 +23,13 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   `recetalia-site:{latest,dev,2.6.3,2.6.3-dev}` desde la Mac.
   ← bloqueado por: Pablo crea en CF el registro A gris `registrypre.recetadigital.uy` → 138.197.150.98
 
-- **[mejora · deploy · S]** Achicar las bases PHP parcheadas (php-parcheado/)
-  Dejan instaladas las dependencias de compilación: recetalia-site pasó a ~1,1 GB (latest) y 940 MB (dev). Hacer
-  `apt-get purge` de lo agregado al final del RUN, cuidando que `docker-php-ext-install mysqli` siga funcionando.
-
 - **[tarea · plataforma · S]** Rotar la clave SMTP de notificaciones@doctorconsultas.com y cargarla en el sitio
   La clave quedó en el historial de git de `recetalia-site` (los mailers la tenían en el código hasta el 2026-10-12).
   `SITE_SMTP_PASS` ya está cargada en el `.env` del .217 y del .98 (2026-10-13) y el formulario de contacto de
   recetalia.com envía. Falta que DoctorConsultas rote la clave; después, recargar la nueva en los dos `.env` y
   correr `docker compose up -d --no-deps recetalia-site` (no hace falta rebuild).
   ← bloqueado por: que DoctorConsultas rote la clave (coordinar el momento con Pablo)
-- **[deuda · plataforma · S]** Cerrar caminos de fuga de datos hallados en la auditoría de salidas
-  Ver `doc/2026-10-12-auditoria-salidas-externas.md` § Riesgos.
-  - Defaults públicos sin `${…}` en `application.yml`: api-rest `:84-85`, security `:59`.
-  - `/email/send` sin autenticación.
-  - `mail.debug: true` (transversal `applications/app-service/src/main/resources/application.yml:62`).
-  - CI del paciente impresa por consola (`PatientServiceImpl:68`).
-  - `console.log(finalKey)` en 4 logins.
-  - bootstrap de jsDelivr sin SRI.
+
 - **[decisión · datos · S]** Base legal para enviar datos de salud a Twilio y a Consilio
   Twilio (EE.UU.) recibe nombre, teléfono y medicamentos del paciente. Consilio recibe el perfil clínico
   sin identificar. Falta un contrato de encargado / consentimiento según la Ley 18.331.
@@ -50,10 +39,6 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   ya no está (medido 2026-10-21). Falta sólo retirar `48-consilio-pre.conf` (consilio.nexohc sin DNS) y revisar
   73-nexohc-redirige.
 
-- **[tarea · plataforma · S]** Cerrar la mudanza de Consilio PROD (ya corre en 165.22.231.175 desde 2026-10-02)
-  Falta (30/31 y sus certs del 178 ya retirados por sites-manager-ea el 2026-10-02): `ufw` en el 165 (hoy firewall inactivo, sólo escuchan 22/80/443); deploys de Consilio
-  ahora son 3: PROD 165 (save/load o build), landing en el 178, PRE en el .98 — documentarlo en `consilio/docs/deploy.md`.
-  ufw del 165 sigue inactive (medido 2026-10-21).
 - **[bloqueado · core · S]** Consilio: patologías en castellano — pedir licencia de DeCS
   Las 1.517 patologías MeSH se muestran en inglés salvo 144 traducidas a mano. La fuente oficial
   es DeCS (BIREME/OPS/OMS): gratis, pero descarga/API exige licencia por formulario
@@ -61,24 +46,12 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   para producción. Pablo decidió 2026-09-25 "sólo fuentes oficiales" (sin traducción IA).
   ← bloqueado por: Pablo completa el formulario de licencia DeCS
 
-- **[tarea · repo · S]** `recetalia-security-testing` no tiene remoto: 23 commits sólo en la Mac
-  Es el único repo del workspace sin `origin`. Todo el trabajo de la suite de pentest y stress
-  vive únicamente en el disco de Pablo. Crear el repo en la organización y pushear.
-
 - **[tarea · core · S]** Pedir a la FOPH suiza el XML de SwissPedDose
   Es un email, y es **lo único estructurado de pediatría con permiso explícito** que se consigue
   gratis: ~700 recomendaciones sobre 230 sustancias, y la oficina federal publica textualmente
   que "may be used and modified by third parties". El Kinderformularium holandés está cerrado
   —prohíbe hasta integrar sus métodos de cálculo— y no hay alternativa abierta.
   ⚠️ Es una foto congelada al 31/12/2025: cortaron el financiamiento en feb-2025, no es un feed.
-
-- **[tarea · core · S]** Cobertura ponderada por prescripción real
-  Ya hay acceso a la tabla `prescription` (SELECT en PROD, 9.801 filas; medido 2026-10-21). Hoy publicamos 59,5% por producto y 52,7% por
-  sustancia, que son métricas de catálogo: tratan igual a la dipirona que a un
-  antineoplásico que se receta una vez al año. La ponderada es el número honesto para
-  vender, y además da **el ranking de lo que falta ordenado por cuánto se receta**, que es
-  la lista de trabajo del farmacéutico. Detalle en
-  [doc/plans/2026-09-16-consilio-pendientes-plan.md](doc/plans/2026-09-16-consilio-pendientes-plan.md).
 
 - **[decisión · core · M]** 🚨 Licencia de DDInter: negociar o construir sin ella
   CC BY-NC-SA 4.0. Con las 14 categorías ATC cargadas (2026-09-25; antes 8, 160.235 pares) aporta
@@ -93,13 +66,6 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   Antes de negociar, verificar la licencia en ddinter2.scbdd.com — el dato viene del repo que
   forkeamos y su propio autor dejó escrito que no la verificó.
 
-- **[decisión · core · S]** Habilitar un QF ahora DEPENDE del servicio de mail
-  Desde la 2.5.0, si la invitación no sale, `validate` falla y no sella `validatedAt`. Es lo
-  correcto —no deja a nadie marcado como habilitado sin poder entrar— pero significa que **con
-  el SMTP caído nadie se puede habilitar**. En PRE eso es hoy el estado (ver el item de abajo).
-  Decidir: se deja así, o se permite habilitar con un aviso de "invitación no enviada".
-  Código: `PharmaceuticalDirectorRegistrationServiceImpl.validate`.
-
 - **[bug · plataforma · M]** El SMTP de PRE está roto: `535 5.7.8 authentication failed`
   Verificado el 2026-09-02 en el log de `transversal-recetalia-api` del `.98`. Credenciales
   inválidas. **Ningún mail sale de PRE** — ni invitaciones de QF ni altas de médico/farmacia.
@@ -108,52 +74,11 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   Sigue: 6 × 535 en transversal del .98, último 2026-10-02, 0 envíos OK desde 2026-09-27 (medido 2026-10-21).
   → desbloquea: probar el flujo de habilitación entero en PRE en vez de en PROD
 
-- **[deuda · plataforma · S]** Un ingress caído se VE pero no AVISA
-  Desde 2026-09-26 el Monitor de Infra de Gestión chequea 4 fronts + security-api de PRE y PROD
-  (`GET /api/control-dashboard/infra/ingress`, 520-530 de Cloudflare = caído). Pero sólo si alguien
-  abre el dashboard. Falta job en `ControlDashboardScheduler` que mande mail al detectar caída
-  (el 2026-09-02 el nginx del `.98` estuvo días muerto sin que nadie se enterara).
-- **[decisión · gestión · M]** Cómo le llega el acceso a cada QF del arrastre
-  **Resuelto el CÓMO en la 2.5.0**: Gestión ya no asigna ninguna clave — habilitar manda al QF
-  un mail con el link para que defina la suya. Lo que sigue abierto es el arrastre de abajo.
-  ~~Gestión asigna la clave~~, pero **casi ningún QF tiene email: 5 de 225** (medido en PROD 2026-10-21;
-  el 2026-08-13 eran 0 y tampoco tenían teléfono). El único canal es la farmacia, y esas sí tienen email:
-  341 activas (medido 2026-10-21).
-  Sin resolver esto el módulo del QF no puede usarse aunque esté desplegado.
-  Planilla de relevamiento generada: `~/Downloads/QF-por-farmacia-PROD-2026-08-13.xlsx`
-  (regenerable con `doc/scripts/gen-qf-xlsx.py`). **Dónde cargarlos ya está resuelto** (modal
-  "Editar contacto" de la 2.3.0, en la solapa Habilitados). Lo que falta es **quién contacta a
-  las 341 farmacias activas (2026-10-21) y con qué texto**. A partir de la 2.3.0 los QF nuevos ya entran con email y
-  celular obligatorios, así que este agujero se cierra solo hacia adelante: es sólo el arrastre.
-
 - **[decisión · datos · M]** Curar los 20 CJPs colisionados
   Ya no es hipotético: en PRODUCCIÓN hay 20 QF en `NEEDS_REVIEW` que abarcan **65 de las 341
   farmacias** (sigue igual, medido 2026-10-21), y no pueden usar el módulo del QF hasta que alguien corrija el dato. Los dos más
   grandes: CJP `1` (Florencia Larrosa) y `84805` (Andrea Fillippini), 7 farmacias cada uno.
   La dispensación normal de esas farmacias no está afectada.
-
-- **[decisión · datos · M]** 151 de 484 médicos no tienen prestador asignado
-  Medido en PROD 2026-10-21 (`medic.medicalProviderId IS NULL`); en PRE son 142/484. **45 de ellos
-  tienen recetas.** (El 2026-08-20 eran 144/479 y 40 con recetas.) Destapado al arreglar el 404 del listado de recetas: el código ya no se rompe
-  con esos médicos, pero la pregunta de fondo sigue abierta — ¿tienen que tener prestador y quedó
-  sin migrar, o hay médicos legítimamente sueltos? De la respuesta depende si el dato se corrige
-  o si la app tiene que tratar "médico sin prestador" como un caso normal para siempre.
-
-- **[deuda · datos · S]** Hay 4 QF y 3 farmacias de prueba en la base de PRODUCCIÓN
-  CJP `446788` ("Test Test"), `453652` ("NombDirTest ApeDirTest") y `9876543` ("test test"), cada
-  uno asignado a una farmacia ficticia (`Farmacia `, `Test`, `test`). Ensucian todo conteo sobre
-  farmacias (341 en total, medido 2026-10-21; siguen los 4 QF y 3 farmacias de prueba) y aparecen en cualquier listado o export. Decidir si se borran.
-  **+1 el 2026-09-02**: CJP `9998887` ("PRUEBA INVITACION"), creado para cerrar el D6 de la
-  2.5.0 (verificar que el mail de invitación sale). Habilitado y visible en la solapa
-  Habilitados. Se dejó vivo a propósito para poder clickear el link del mail; borrarlo con
-  `bash /tmp/d6.sh limpiar` en el `.217`. **Este tiene dueño y fecha: no es arrastre.**
-
-- **[tarea · datos · S]** Faltan usuarios de prueba en PRE
-  Falta un admin de cadena con franquicia y clave conocida: `recetaliat2@` no es `adminEmail` de ninguna
-  franquicia (medido 2026-10-21). Sin él esa ruta se valida sólo con tests unitarios. El prestador ya está
-  cubierto: «Human (demo)» (`human-demo@recetalia.com`, claves en `~/.config/recetalia-human/pre.env`) sirve
-  como prestador con clave conocida (`test-prestador-deploy@` no está vinculado a ningún medical_provider).
-  `api-c3` ya existe en PRE (SAMC, id 59).
 
 - **[bug · core · M]** Un prestador puede editar o borrar cualquier médico
   Hallado 2026-09-26 (`fix/medics-endpoints-rol`): `GET/PUT/DELETE /api/medics/{id}` aceptan
@@ -180,6 +105,7 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   `/opt/consilio`, `docker-compose.mi.yml`, vhosts `30-`/`31-` en `/opt/edge/conf.d`, cómo se sube la base.
   Ojo: el contenedor `consilio` del .98 está corriendo (Up, healthy), no parado (medido 2026-10-21). Decidir si
   se apaga: el disco del .98 está al 90-92%.
+
 - **[deuda · plataforma · S]** `CREDENTIALS.local.md` copiado en `/opt/recetalia/<repo>/` del .217 y del .98
   Desde junio (rsync de fuentes). No entra a las imágenes, pero está en disco de PROD. Borrarlo en ambos
   servers y agregar la exclusión al rsync de `deploy.sh` y al procedimiento manual de build en server.
@@ -190,6 +116,85 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   borrarlas: ven todo Gestión.
 
 ## DESPUÉS
+
+- **[mejora · deploy · S]** Achicar las bases PHP parcheadas (php-parcheado/)
+  Dejan instaladas las dependencias de compilación: recetalia-site pasó a ~1,1 GB (latest) y 940 MB (dev). Hacer
+  `apt-get purge` de lo agregado al final del RUN, cuidando que `docker-php-ext-install mysqli` siga funcionando.
+
+- **[deuda · plataforma · S]** Cerrar caminos de fuga de datos hallados en la auditoría de salidas
+  Ver `doc/2026-10-12-auditoria-salidas-externas.md` § Riesgos.
+  - Defaults públicos sin `${…}` en `application.yml`: api-rest `:84-85`, security `:59`.
+  - `/email/send` sin autenticación.
+  - `mail.debug: true` (transversal `applications/app-service/src/main/resources/application.yml:62`).
+  - CI del paciente impresa por consola (`PatientServiceImpl:68`).
+  - `console.log(finalKey)` en 4 logins.
+  - bootstrap de jsDelivr sin SRI.
+
+- **[tarea · plataforma · S]** Cerrar la mudanza de Consilio PROD (ya corre en 165.22.231.175 desde 2026-10-02)
+  Falta (30/31 y sus certs del 178 ya retirados por sites-manager-ea el 2026-10-02): `ufw` en el 165 (hoy firewall inactivo, sólo escuchan 22/80/443); deploys de Consilio
+  ahora son 3: PROD 165 (save/load o build), landing en el 178, PRE en el .98 — documentarlo en `consilio/docs/deploy.md`.
+  ufw del 165 sigue inactive (medido 2026-10-21).
+
+- **[tarea · repo · S]** `recetalia-security-testing` no tiene remoto: 23 commits sólo en la Mac
+  Es el único repo del workspace sin `origin`. Todo el trabajo de la suite de pentest y stress
+  vive únicamente en el disco de Pablo. Crear el repo en la organización y pushear.
+
+- **[tarea · core · S]** Cobertura ponderada por prescripción real
+  Ya hay acceso a la tabla `prescription` (SELECT en PROD, 9.801 filas; medido 2026-10-21). Hoy publicamos 59,5% por producto y 52,7% por
+  sustancia, que son métricas de catálogo: tratan igual a la dipirona que a un
+  antineoplásico que se receta una vez al año. La ponderada es el número honesto para
+  vender, y además da **el ranking de lo que falta ordenado por cuánto se receta**, que es
+  la lista de trabajo del farmacéutico. Detalle en
+  [doc/plans/2026-09-16-consilio-pendientes-plan.md](doc/plans/2026-09-16-consilio-pendientes-plan.md).
+
+- **[decisión · core · S]** Habilitar un QF ahora DEPENDE del servicio de mail
+  Desde la 2.5.0, si la invitación no sale, `validate` falla y no sella `validatedAt`. Es lo
+  correcto —no deja a nadie marcado como habilitado sin poder entrar— pero significa que **con
+  el SMTP caído nadie se puede habilitar**. En PRE eso es hoy el estado (ver el item de abajo).
+  Decidir: se deja así, o se permite habilitar con un aviso de "invitación no enviada".
+  Código: `PharmaceuticalDirectorRegistrationServiceImpl.validate`.
+
+- **[deuda · plataforma · S]** Un ingress caído se VE pero no AVISA
+  Desde 2026-09-26 el Monitor de Infra de Gestión chequea 4 fronts + security-api de PRE y PROD
+  (`GET /api/control-dashboard/infra/ingress`, 520-530 de Cloudflare = caído). Pero sólo si alguien
+  abre el dashboard. Falta job en `ControlDashboardScheduler` que mande mail al detectar caída
+  (el 2026-09-02 el nginx del `.98` estuvo días muerto sin que nadie se enterara).
+
+- **[decisión · gestión · M]** Cómo le llega el acceso a cada QF del arrastre
+  **Resuelto el CÓMO en la 2.5.0**: Gestión ya no asigna ninguna clave — habilitar manda al QF
+  un mail con el link para que defina la suya. Lo que sigue abierto es el arrastre de abajo.
+  ~~Gestión asigna la clave~~, pero **casi ningún QF tiene email: 5 de 225** (medido en PROD 2026-10-21;
+  el 2026-08-13 eran 0 y tampoco tenían teléfono). El único canal es la farmacia, y esas sí tienen email:
+  341 activas (medido 2026-10-21).
+  Sin resolver esto el módulo del QF no puede usarse aunque esté desplegado.
+  Planilla de relevamiento generada: `~/Downloads/QF-por-farmacia-PROD-2026-08-13.xlsx`
+  (regenerable con `doc/scripts/gen-qf-xlsx.py`). **Dónde cargarlos ya está resuelto** (modal
+  "Editar contacto" de la 2.3.0, en la solapa Habilitados). Lo que falta es **quién contacta a
+  las 341 farmacias activas (2026-10-21) y con qué texto**. A partir de la 2.3.0 los QF nuevos ya entran con email y
+  celular obligatorios, así que este agujero se cierra solo hacia adelante: es sólo el arrastre.
+
+- **[decisión · datos · M]** 151 de 484 médicos no tienen prestador asignado
+  Medido en PROD 2026-10-21 (`medic.medicalProviderId IS NULL`); en PRE son 142/484. **45 de ellos
+  tienen recetas.** (El 2026-08-20 eran 144/479 y 40 con recetas.) Destapado al arreglar el 404 del listado de recetas: el código ya no se rompe
+  con esos médicos, pero la pregunta de fondo sigue abierta — ¿tienen que tener prestador y quedó
+  sin migrar, o hay médicos legítimamente sueltos? De la respuesta depende si el dato se corrige
+  o si la app tiene que tratar "médico sin prestador" como un caso normal para siempre.
+
+- **[deuda · datos · S]** Hay 4 QF y 3 farmacias de prueba en la base de PRODUCCIÓN
+  CJP `446788` ("Test Test"), `453652` ("NombDirTest ApeDirTest") y `9876543` ("test test"), cada
+  uno asignado a una farmacia ficticia (`Farmacia `, `Test`, `test`). Ensucian todo conteo sobre
+  farmacias (341 en total, medido 2026-10-21; siguen los 4 QF y 3 farmacias de prueba) y aparecen en cualquier listado o export. Decidir si se borran.
+  **+1 el 2026-09-02**: CJP `9998887` ("PRUEBA INVITACION"), creado para cerrar el D6 de la
+  2.5.0 (verificar que el mail de invitación sale). Habilitado y visible en la solapa
+  Habilitados. Se dejó vivo a propósito para poder clickear el link del mail; borrarlo con
+  `bash /tmp/d6.sh limpiar` en el `.217`. **Este tiene dueño y fecha: no es arrastre.**
+
+- **[tarea · datos · S]** Faltan usuarios de prueba en PRE
+  Falta un admin de cadena con franquicia y clave conocida: `recetaliat2@` no es `adminEmail` de ninguna
+  franquicia (medido 2026-10-21). Sin él esa ruta se valida sólo con tests unitarios. El prestador ya está
+  cubierto: «Human (demo)» (`human-demo@recetalia.com`, claves en `~/.config/recetalia-human/pre.env`) sirve
+  como prestador con clave conocida (`test-prestador-deploy@` no está vinculado a ningún medical_provider).
+  `api-c3` ya existe en PRE (SAMC, id 59).
 
 - **[deuda · plataforma · M]** transversal sin Spring Security: `/api/email/send` es un relay abierto
   Sólo alcanzable desde la red interna de docker (nginx no expone transversal, verificado 2026-09-27), pero
