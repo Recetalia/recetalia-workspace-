@@ -16,9 +16,12 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
 - **[bug · deploy · S]** 🚨 Cert de `registrypre.recetadigital.uy` vencido desde el 2026-10-11: no se puede pushear ni pullear
   Medido el 2026-10-21 (`docker push` → x509 expired). Bloquea `build-and-push.sh` y el `pull` de `deploy.sh` en los dos
   servers: hoy ningún deploy normal funciona. El parche PHP2Shell se desplegó por `docker save | ssh docker load`.
-  Al renovarlo (en el .98, `certbot … --cert-name registrypre.recetadigital.uy`, ver memoria de gotchas: sacar SANs
-  muertos): pushear `php-base:7.4-apache{,-buster}-php2shell` y `recetalia-site:{latest,dev}` desde la Mac.
-  ← bloqueado por: OK de Pablo para renovar los certs de recetadigital.uy (dijo «todavía no»)
+  Causa (medida 2026-10-21 con `dig`): el nombre NO tiene registro A en el DNS público (zona recetadigital.uy en
+  Cloudflare); sólo resuelve por `/etc/hosts` de la Mac (Colima) y del .217 → Let's Encrypt no puede validar.
+  Después: en el .98 `certbot certonly --webroot -w /var/www/letsencrypt --cert-name registrypre.recetadigital.uy
+  -d registrypre.recetadigital.uy` + reload, y pushear `php-base:7.4-apache{,-buster}-php2shell` y
+  `recetalia-site:{latest,dev,2.6.3,2.6.3-dev}` desde la Mac.
+  ← bloqueado por: Pablo crea en CF el registro A gris `registrypre.recetadigital.uy` → 138.197.150.98
 
 - **[mejora · deploy · S]** Achicar las bases PHP parcheadas (php-parcheado/)
   Dejan instaladas las dependencias de compilación: recetalia-site pasó a ~1,1 GB (latest) y 940 MB (dev). Hacer
