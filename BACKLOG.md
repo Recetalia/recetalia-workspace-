@@ -8,6 +8,7 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
 ## AHORA
 
 - **[bug · core · S]** 🚨 `/api/medical-providers/**` abierto a cualquier token: lectura de secretos de otros prestadores (PROD)
+  ✅ Arreglado en PRE 2026-10-22 (rama api-rest `fix/seguridad-prestadores-medicos`, sin merge). Falta PROD con OK de Pablo.
   Medido el 2026-10-13 con el token API del prestador NexoHC: `GET /medical-providers` (listado) y `GET /medical-providers/{id}`
   de OTRO prestador → 200, con `password` y `passwordForgotCode` con valor. POST, PUT y DELETE también caen en
   `anyRequest().authenticated()` (`SecurityConfiguration.java:300`), sin matcher propio. Restringir a `ROLE_ROLE_MANAGEMENT`
@@ -81,6 +82,7 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   La dispensación normal de esas farmacias no está afectada.
 
 - **[bug · core · M]** Un prestador puede editar o borrar cualquier médico
+  ✅ Arreglado en PRE 2026-10-22 (rama api-rest `fix/seguridad-prestadores-medicos`, sin merge). Falta PROD con OK de Pablo.
   Hallado 2026-09-26 (`fix/medics-endpoints-rol`): `GET/PUT/DELETE /api/medics/{id}` aceptan
   ROLE_MEDICAL_PROVIDER sin ownership, y ve a todos en `GET /api/medics`. No se acotó porque el alta
   del prestador no manda `medicalProviderId` → sus médicos quedan sin prestador. Arreglo: asignar el
@@ -93,6 +95,7 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
   (2) y `consilio/docs/2026-09-25-castellano-y-colores.md`.
 
 - **[bug · core · S]** Un médico con `status=DELETED` sigue logueando y usando la API
+  ✅ Arreglado en PRE 2026-10-22 (rama api-rest `fix/seguridad-prestadores-medicos`, sin merge). Falta PROD con OK de Pablo.
   Medido en PRE 2026-09-26: `medico@pruebas.com` tiene `medic.status=DELETED` y hace login, emite
   token y opera. El login (security-api) no mira el status del médico de recetalia-api-rest.
   Un médico dado de baja no debería poder recetar.
