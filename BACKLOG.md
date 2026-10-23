@@ -120,6 +120,12 @@ Qué falta y qué se descartó. El detalle del release en curso vive en
 
 ## DESPUÉS
 
+- **[deuda · plataforma · S]** recetalia.com afirma «+500» y «+600 farmacias»; PROD tiene 303 activas de 341
+  Medido 2026-10-23 (SELECT en PROD: `pharmacy` status ACTIVE sin deletedAt = 303, total 341). Lo dicen el alt del
+  slider de `recetalia-site/index.php` y la imagen `images/slide-mobile-1-1.png` / `slide-farmacias*.png`. Además
+  quedan restos de la plantilla (FAQ cripto, testimonios, equipo en lorem ipsum, `images/moble-img.png` de préstamos).
+  Corregir cifras (o quitarlas) y limpiar la plantilla antes de campañas que manden tráfico al sitio.
+
 - **[mejora · deploy · S]** Achicar las bases PHP parcheadas (php-parcheado/)
   Dejan instaladas las dependencias de compilación: recetalia-site pasó a ~1,1 GB (latest) y 940 MB (dev). Hacer
   `apt-get purge` de lo agregado al final del RUN, cuidando que `docker-php-ext-install mysqli` siga funcionando.
